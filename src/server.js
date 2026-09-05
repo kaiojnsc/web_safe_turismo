@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const pontoTuristicoRoutes = require('./routes/pontoTuristicoRoutes');
 const eventoRoutes = require('./routes/eventoRoutes');
+const areaDeRiscoRoutes = require('./routes/areaDeRiscoRoutes');
 const schema = require('./graphql/schema');
 const resolvers = require('./graphql/resolvers');
 const criarContexto = require('./graphql/context');
@@ -24,6 +25,7 @@ app.use(authRoutes);
 app.use(usuarioRoutes);
 app.use(pontoTuristicoRoutes);
 app.use(eventoRoutes);
+app.use(areaDeRiscoRoutes);
 
 app.all(
   '/graphql',
