@@ -2,11 +2,16 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const { createHandler } = require('graphql-http/lib/use/express');
 
 const conectarBanco = require('./database');
 const authRoutes = require('./routes/authRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 const pontoTuristicoRoutes = require('./routes/pontoTuristicoRoutes');
 const eventoRoutes = require('./routes/eventoRoutes');
+const schema = require('./graphql/schema');
+const resolvers = require('./graphql/resolvers');
+const criarContexto = require('./graphql/context');
 
 const app = express();
 
@@ -16,8 +21,18 @@ app.use(express.json());
 conectarBanco();
 
 app.use(authRoutes);
+app.use(usuarioRoutes);
 app.use(pontoTuristicoRoutes);
 app.use(eventoRoutes);
+
+app.all(
+  '/graphql',
+  createHandler({
+    schema,
+    rootValue: resolvers,
+    context: criarContexto
+  })
+);
 
 const PORT = process.env.PORT || 3000;
 
