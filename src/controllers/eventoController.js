@@ -1,120 +1,59 @@
-const Evento = require('../models/Evento');
+const eventoService = require('../services/eventoService');
+const tratarErroRest = require('../utils/tratarErroRest');
 
 const cadastrarEvento = async (req, res) => {
   try {
-    const { nome, descricao, data, local } = req.body;
-
-    if (!nome || !descricao || !data || !local) {
-      return res.status(400).json({
-        mensagem: 'Nome, descrição, data e local são obrigatórios'
-      });
-    }
-
-    const evento = new Evento({
-      nome,
-      descricao,
-      data,
-      local,
-      criadoPor: req.usuario.id
-    });
-
-    const eventoSalvo = await evento.save();
+    const evento = await eventoService.criar(req.body, req.usuario.id);
 
     res.status(201).json({
       mensagem: 'Evento cadastrado com sucesso',
-      evento: eventoSalvo
+      evento
     });
   } catch (error) {
-    res.status(500).json({
-      mensagem: 'Erro ao cadastrar evento',
-      erro: error.message
-    });
+    tratarErroRest(res, error, 'Erro ao cadastrar evento');
   }
 };
 
 const listarEventos = async (req, res) => {
   try {
-    const eventos = await Evento.find().populate('criadoPor', 'nome email');
-
+    const eventos = await eventoService.listar();
     res.status(200).json(eventos);
   } catch (error) {
-    res.status(500).json({
-      mensagem: 'Erro ao listar eventos',
-      erro: error.message
-    });
+    tratarErroRest(res, error, 'Erro ao listar eventos');
   }
 };
 
 const buscarEvento = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const evento = await Evento.findById(id).populate('criadoPor', 'nome email');
-
-    if (!evento) {
-      return res.status(404).json({
-        mensagem: 'Evento não encontrado'
-      });
-    }
-
+    const evento = await eventoService.buscarPorId(req.params.id);
     res.status(200).json(evento);
   } catch (error) {
-    res.status(500).json({
-      mensagem: 'Erro ao buscar evento',
-      erro: error.message
-    });
+    tratarErroRest(res, error, 'Erro ao buscar evento');
   }
 };
 
 const atualizarEvento = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { nome, descricao, data, local } = req.body;
-
-    const evento = await Evento.findByIdAndUpdate(
-      id,
-      { nome, descricao, data, local },
-      { new: true, runValidators: true }
-    );
-
-    if (!evento) {
-      return res.status(404).json({
-        mensagem: 'Evento não encontrado'
-      });
-    }
+    const evento = await eventoService.atualizar(req.params.id, req.body);
 
     res.status(200).json({
       mensagem: 'Evento atualizado com sucesso',
       evento
     });
   } catch (error) {
-    res.status(500).json({
-      mensagem: 'Erro ao atualizar evento',
-      erro: error.message
-    });
+    tratarErroRest(res, error, 'Erro ao atualizar evento');
   }
 };
 
 const excluirEvento = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const evento = await Evento.findByIdAndDelete(id);
-
-    if (!evento) {
-      return res.status(404).json({
-        mensagem: 'Evento não encontrado'
-      });
-    }
+    await eventoService.excluir(req.params.id);
 
     res.status(200).json({
       mensagem: 'Evento excluído com sucesso'
     });
   } catch (error) {
-    res.status(500).json({
-      mensagem: 'Erro ao excluir evento',
-      erro: error.message
-    });
+    tratarErroRest(res, error, 'Erro ao excluir evento');
   }
 };
 
