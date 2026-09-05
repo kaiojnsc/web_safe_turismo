@@ -87,16 +87,16 @@ de REST e GraphQL acima).
    - Se preferir montar na mão, dá no mesmo: aba **Headers**, chave
      `Authorization`, valor `Bearer <token colado aqui>`.
 4. O token expira em **2 horas**. Se um teste que funcionava começar a
-   voltar `401` do nada, provavelmente é só o token vencendo — faça login de
+   voltar `401` do nada, provavelmente é só o token vencendo faça login de
    novo e pega um token fresco.
 5. Dica: crie um Environment no Postman com uma variável `token` e, na aba
    **Tests** da requisição de login, adicione
-   `pm.environment.set("token", pm.response.json().token);` — assim o token
+   `pm.environment.set("token", pm.response.json().token);` assim o token
    é salvo sozinho a cada login, sem precisar copiar e colar toda hora.
 
 ### Exemplos de requisições
 
-**1. Cadastrar um turista** — `POST /auth/cadastro`
+**1. Cadastrar um turista** `POST /auth/cadastro`
 
 ```json
 {
@@ -105,10 +105,10 @@ de REST e GraphQL acima).
   "senha": "123456"
 }
 ```
-Sem o campo `perfil`, o cadastro cai como `turista` por padrão — quem só
+Sem o campo `perfil`, o cadastro cai como `turista` por padrão quem só
 pode visualizar pontos turísticos e eventos.
 
-**2. Cadastrar um profissional** — `POST /auth/cadastro`
+**2. Cadastrar um profissional** `POST /auth/cadastro`
 
 ```json
 {
@@ -118,11 +118,11 @@ pode visualizar pontos turísticos e eventos.
   "perfil": "profissional"
 }
 ```
-Aqui o `perfil` é enviado explicitamente como `"profissional"` — é esse
+Aqui o `perfil` é enviado explicitamente como `"profissional"` é esse
 usuário que vai conseguir criar, editar e excluir pontos turísticos e
 eventos.
 
-**3. Login** — `POST /auth/login`
+**3. Login** `POST /auth/login`
 
 ```json
 {
@@ -130,9 +130,9 @@ eventos.
   "senha": "123456"
 }
 ```
-A resposta traz o `token` — é ele que você vai usar no passo do JWT acima.
+A resposta traz o `token` é ele que você vai usar no passo do JWT acima.
 
-**4. Criar um ponto turístico (precisa ser profissional)** — `POST /pontos-turisticos`, com o token do Kill
+**4. Criar um ponto turístico (precisa ser profissional)** `POST /pontos-turisticos`, com o token do Kill
 
 ```json
 {
@@ -144,12 +144,12 @@ A resposta traz o `token` — é ele que você vai usar no passo do JWT acima.
 ```
 Só `nome` e `descricao` são obrigatórios, o resto é opcional.
 
-**5. Mesma requisição do #4, mas com o token do Kaio (turista)** — deve dar
+**5. Mesma requisição do #4, mas com o token do Kaio (turista)** deve dar
 erro `403` ("Usuário não possui permissão"), porque turista não pode
 cadastrar ponto turístico, só visualizar.
 
 Se quiser confirmar isso com um terceiro usuário, cadastre um "Pedro" como
-turista (igual ao #1) e repita o teste #5 com o token dele — o resultado
+turista (igual ao #1) e repita o teste #5 com o token dele o resultado
 tem que ser o mesmo `403`, pra garantir que a regra vale pra qualquer
 turista, não só pro Kaio.
 
