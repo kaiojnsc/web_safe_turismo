@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
+const Evento = require('../models/Evento');
+const PontoTuristico = require('../models/PontoTuristico');
 const AppError = require('../utils/AppError');
 const { gerarToken } = require('../utils/token');
 
@@ -12,7 +14,7 @@ const cadastrar = async ({ nome, email, senha, perfil }) => {
     throw new AppError('Nome, email e senha são obrigatórios', 400, 'BAD_REQUEST');
   }
 
-  const usuarioExistente = await Usuario.findOne({ email });
+  const usuarioExistente = await Usuario.findOne({ email: email.toLowerCase() });
 
   if (usuarioExistente) {
     throw new AppError('Email já cadastrado', 409, 'CONFLICT');
@@ -22,7 +24,7 @@ const cadastrar = async ({ nome, email, senha, perfil }) => {
 
   const usuario = new Usuario({
     nome,
-    email,
+    email: email.toLowerCase(),
     senha: senhaCriptografada,
     perfil: perfil === 'profissional' ? 'profissional' : 'turista'
   });
@@ -35,7 +37,7 @@ const login = async ({ email, senha }) => {
     throw new AppError('Email ou senha inválidos', 401, 'UNAUTHENTICATED');
   }
 
-  const usuario = await Usuario.findOne({ email });
+  const usuario = await Usuario.findOne({ email: email.toLowerCase() }).select('+senha');
 
   if (!usuario) {
     throw new AppError('Email ou senha inválidos', 401, 'UNAUTHENTICATED');
@@ -76,13 +78,13 @@ const atualizarPerfil = async (usuarioId, { nome, email, senha }) => {
   }
 
   if (email && email !== usuario.email) {
-    const emailEmUso = await Usuario.findOne({ email });
+    const emailEmUso = await Usuario.findOne({ email: email.toLowerCase() });
 
     if (emailEmUso) {
       throw new AppError('Email já cadastrado', 409, 'CONFLICT');
     }
 
-    usuario.email = email;
+    usuario.email = email.toLowerCase();
   }
 
   if (nome) {
@@ -97,11 +99,19 @@ const atualizarPerfil = async (usuarioId, { nome, email, senha }) => {
 };
 
 const excluirPerfil = async (usuarioId) => {
-  const usuario = await Usuario.findByIdAndDelete(usuarioId);
+  const usuario = await Usuario.findById(usuarioId);
 
   if (!usuario) {
     throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND');
   }
+
+  // Mantém a integridade das relações: os documentos criados pelo usuário
+  // deixam de existir quando a conta é excluída.
+  await Promise.all([
+    Evento.deleteMany({ criadoPor: usuario._id }),
+    PontoTuristico.deleteMany({ criadoPor: usuario._id }),
+    usuario.deleteOne()
+  ]);
 };
 
 module.exports = {

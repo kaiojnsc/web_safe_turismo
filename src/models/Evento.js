@@ -2,14 +2,15 @@ const mongoose = require('mongoose');
 
 const eventoSchema = new mongoose.Schema(
   {
-    nome: { type: String, required: true },
-    descricao: { type: String, required: true },
-    data: { type: Date, required: true },
-    local: { type: String, required: true },
+    nome: { type: String, required: true, trim: true },
+    descricao: { type: String, required: true, trim: true },
+    data: { type: Date, required: true, index: true },
+    local: { type: String, required: true, trim: true },
     criadoPor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario',
-      required: true
+      required: true,
+      index: true
     }
   },
   {
