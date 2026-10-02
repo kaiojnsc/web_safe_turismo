@@ -41,3 +41,26 @@
 .navbar-link:hover {
   color: #fff;
 }
+
+.navbar-usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.navbar-sair {
+  background: transparent;
+  border: 1px solid #888;
+  color: #eee;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.navbar-sair:hover {
+  background: #fff;
+  color: #1a1a2e;
+}

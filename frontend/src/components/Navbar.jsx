@@ -1,7 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 function Navbar() {
+  const { usuario, sair } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSair = async () => {
+    await sair();
+    navigate('/');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-brand">
@@ -26,6 +35,22 @@ function Navbar() {
             Eventos
           </Link>
         </li>
+        {usuario ? (
+          <li className="navbar-usuario">
+            <span>
+              {usuario.nome} ({usuario.perfil})
+            </span>
+            <button type="button" className="navbar-sair" onClick={handleSair}>
+              Sair
+            </button>
+          </li>
+        ) : (
+          <li>
+            <Link to="/login" className="navbar-link">
+              Entrar
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );
