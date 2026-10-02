@@ -1,0 +1,294 @@
+/* ==========================================================
+   SafeTour - estilos globais (src/index.css)
+   Responsável: Pedro (CSS, testes e integração final)
+
+   Cobre: base da página, formulário, tabela, botões e
+   mensagens. Navbar, Loading, ErrorMessage e Home já têm
+   CSS próprio (feito pelo Killandio) e não são alterados aqui;
+   este arquivo só usa as mesmas cores para ficar tudo igual.
+   ========================================================== */
+
+:root {
+  /* Cores (mesma base da Navbar e do Loading) */
+  --cor-primaria: #1a1a2e;
+  --cor-primaria-clara: #2d2d4a;
+  --cor-fundo: #f4f5f9;
+  --cor-superficie: #ffffff;
+  --cor-texto: #222222;
+  --cor-texto-suave: #666666;
+  --cor-borda: #dddddd;
+
+  /* Cores dos botões */
+  --cor-salvar: #198754;
+  --cor-editar: #0d6efd;
+  --cor-excluir: #dc3545;
+  --cor-cancelar: #6c757d;
+
+  --raio: 8px;
+  --sombra: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Base ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--cor-primaria);
+}
+
+/* ---------- Páginas (Pontos Turísticos / Eventos) ---------- */
+
+.page {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+/* Página mais estreita (tela de login) */
+.page-estreita {
+  max-width: 420px;
+}
+
+/* ---------- Formulário (cadastro e edição) ---------- */
+
+.form {
+  background: var(--cor-superficie);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  border-top: 4px solid var(--cor-primaria);
+}
+
+.form h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.15);
+}
+
+/* Campo inválido (ex.: obrigatório vazio depois de tentar salvar) */
+.form-group input:user-invalid,
+.form-group textarea:user-invalid {
+  border-color: var(--cor-excluir);
+}
+
+.form-buttons {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+/* ---------- Botões ---------- */
+
+.button {
+  border: none;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  transition: filter 0.2s ease, transform 0.1s ease;
+}
+
+.button:hover {
+  filter: brightness(0.9);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: 3px solid rgba(26, 26, 46, 0.35);
+  outline-offset: 2px;
+}
+
+.save {
+  background: var(--cor-salvar);
+}
+
+.edit {
+  background: var(--cor-editar);
+  margin-right: 0.4rem;
+}
+
+.delete {
+  background: var(--cor-excluir);
+}
+
+.cancel {
+  background: var(--cor-cancelar);
+}
+
+/* ---------- Tabela (listagem) ---------- */
+
+/* Se a tabela estiver dentro de <div className="table-wrapper">,
+   ela rola para o lado no celular em vez de quebrar a página. */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+table {
+  width: 100%;
+  background: var(--cor-superficie);
+  border-collapse: collapse;
+  border-radius: var(--raio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.table-wrapper table {
+  box-shadow: none;
+}
+
+th,
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  background: var(--cor-primaria);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+tbody tr:hover {
+  background: #f8f9fc;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td:last-child {
+  white-space: nowrap;
+}
+
+/* Mensagem quando não existe nenhum registro */
+.empty {
+  background: var(--cor-superficie);
+  padding: 2rem;
+  text-align: center;
+  color: var(--cor-texto-suave);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.empty a {
+  color: var(--cor-editar);
+  font-weight: 600;
+}
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 600px) {
+  /* Navbar: logo em cima e links embaixo, para não espremer */
+  .navbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .navbar-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1rem;
+  }
+
+  .page {
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .form {
+    padding: 1rem;
+  }
+
+  th,
+  td {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .button {
+    padding: 0.5rem 0.75rem;
+  }
+}
