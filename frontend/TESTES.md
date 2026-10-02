@@ -4,7 +4,13 @@ Responsável: **Pedro** (CSS, testes e integração final)
 
 Fluxo testado: **React → Apollo Client → GraphQL → backend → MongoDB**
 
-Status usado nas tabelas: ✅ passou · ❌ falhou · ⏳ ainda não dá para testar
+Status usado nas tabelas:
+- ✅ passou no teste manual, no PC, com o backend ligado ao MongoDB Atlas
+- ✅* passou no teste automatizado: navegador automático com o backend real (schema, resolvers e JWT), mas com o banco em memória
+- ❌ falhou
+- ⏳ ainda não testado
+
+**Rodada de testes:** 02/10/2026.
 
 ---
 
@@ -71,57 +77,58 @@ Campos obrigatórios no cadastro: `nome`, `descricao`, `data` e `local`.
 
 | # | O que fazer | Resultado esperado | Status |
 |---|-------------|--------------------|--------|
-| V1 | Abrir `/` | Navbar escura no topo, Home centralizada | ⏳ |
-| V2 | Clicar nos links da Navbar | Troca de página sem recarregar o navegador | ⏳ |
-| V3 | Logado como profissional, abrir a página de Pontos Turísticos | Título, botão verde de novo cadastro e tabela com cabeçalho escuro | ⏳ |
-| V4 | Clicar no botão de novo cadastro | Formulário branco com borda superior escura | ⏳ |
-| V5 | Clicar dentro de um campo | Borda do campo fica escura (foco) | ⏳ |
-| V6 | Tentar salvar com campo obrigatório vazio | Navegador bloqueia e o campo fica com borda vermelha | ⏳ |
-| V7 | Diminuir a janela para largura de celular (F12 → modo celular) | Nada fica cortado; a tabela rola para o lado | ⏳ |
-| V8 | Desligar o backend e recarregar a lista | Aparece a caixa vermelha de erro (ErrorMessage) | ⏳ |
-| V9 | Recarregar a lista com a internet lenta (F12 → Network → Slow 3G) | Aparece o spinner "Carregando..." | ⏳ |
+| V1 | Abrir `/` | Navbar escura no topo, Home centralizada | ✅* |
+| V2 | Clicar nos links da Navbar | Troca de página sem recarregar o navegador | ✅* |
+| V3 | Logado como profissional, abrir a página de Pontos Turísticos | Título, botão verde de novo cadastro e tabela com cabeçalho escuro | ✅ |
+| V4 | Clicar no botão de novo cadastro | Formulário branco com borda superior escura | ✅* |
+| V5 | Clicar dentro de um campo | Borda do campo fica escura (foco) | ✅ |
+| V6 | Tentar salvar com campo obrigatório vazio | Navegador bloqueia e o campo fica com borda vermelha | ✅* |
+| V7 | Diminuir a janela para largura de celular (F12 → modo celular) | Nada fica cortado; a tabela rola para o lado | ✅* |
+| V8 | Desligar o backend e recarregar a lista | Aparece a caixa vermelha de erro (ErrorMessage) | ✅ |
+| V9 | Recarregar a lista com a internet lenta (F12 → Network → Slow 3G) | Aparece o spinner "Carregando..." | ✅ |
 
 ### 3.2 GET — listagem
 
 | # | O que fazer | Resultado esperado | Status |
 |---|-------------|--------------------|--------|
-| G1 | Logado como turista, abrir Pontos Turísticos | Lista aparece (ou a mensagem de "nenhum cadastrado") | ⏳ |
-| G2 | Logado como turista, abrir Eventos | Lista aparece | ⏳ |
-| G3 | **Sem login**, abrir Pontos Turísticos | Aparece um aviso para fazer login (ou o erro "Usuário não autenticado"), sem a tela quebrar | ⏳ |
-| G4 | Banco sem nenhum registro | Mensagem "Nenhum ... cadastrado" em vez de tabela vazia | ⏳ |
-| G5 | Entrar com senha errada | Aparece "Email ou senha inválidos" | ⏳ |
+| G1 | Logado como turista, abrir Pontos Turísticos | Lista aparece (ou a mensagem de "nenhum cadastrado") | ✅* |
+| G2 | Logado como turista, abrir Eventos | Lista aparece | ✅* |
+| G3 | **Sem login**, abrir Pontos Turísticos | Aparece um aviso para fazer login (ou o erro "Usuário não autenticado"), sem a tela quebrar | ✅* |
+| G4 | Banco sem nenhum registro | Mensagem "Nenhum ... cadastrado" em vez de tabela vazia | ✅* |
+| G5 | Entrar com senha errada | Aparece "Email ou senha inválidos" | ✅* |
 
 ### 3.3 CREATE — cadastro
 
 | # | O que fazer | Resultado esperado | Status |
 |---|-------------|--------------------|--------|
-| C1 | Como **profissional**, cadastrar o ponto "Açude Velho", com descrição "Cartão-postal da cidade" | Aparece na lista sem precisar recarregar a página | ⏳ |
-| C2 | Como **profissional**, cadastrar o evento "São João", com data `2026-06-24` e local "Parque do Povo" | Aparece na lista | ⏳ |
-| C3 | Como **turista**, tentar cadastrar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ⏳ |
-| C4 | Conferir no MongoDB Atlas | O registro está salvo no banco | ⏳ |
+| C1 | Como **profissional**, cadastrar o ponto "Açude Velho", com descrição "Cartão-postal da cidade" | Aparece na lista sem precisar recarregar a página | ✅ |
+| C2 | Como **profissional**, cadastrar o evento "São João", com data `2026-06-24` e local "Parque do Povo" | Aparece na lista | ✅* |
+| C3 | Como **turista**, tentar cadastrar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ✅* |
+| C4 | Conferir se o registro ficou salvo no MongoDB Atlas | O registro continua na lista depois de reiniciar o backend (`rs`) e recarregar a página | ✅ |
 
 ### 3.4 UPDATE — edição
 
 | # | O que fazer | Resultado esperado | Status |
 |---|-------------|--------------------|--------|
-| U1 | Como profissional, clicar em **Editar** no "Açude Velho" | O formulário abre já preenchido | ⏳ |
-| U2 | Mudar o nome para "Açude Velho - Centro" e salvar | A lista mostra o nome novo | ⏳ |
-| U3 | Clicar em Editar e depois em **Cancelar** | O formulário fecha e os campos ficam limpos | ⏳ |
-| U4 | Como turista, tentar editar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ⏳ |
+| U1 | Como profissional, clicar em **Editar** no "Açude Velho" | O formulário abre já preenchido | ✅* |
+| U2 | Mudar o nome para "Açude Velho - Centro" e salvar | A lista mostra o nome novo | ✅* |
+| U3 | Clicar em Editar e depois em **Cancelar** | O formulário fecha e os campos ficam limpos | ✅* |
+| U4 | Como turista, tentar editar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ✅* |
 
 ### 3.5 DELETE — exclusão
 
 | # | O que fazer | Resultado esperado | Status |
 |---|-------------|--------------------|--------|
-| D1 | Como profissional, clicar em **Excluir** e depois em Cancelar na confirmação | Nada é apagado | ⏳ |
-| D2 | Clicar em Excluir e confirmar | O item some da lista | ⏳ |
-| D3 | Conferir no MongoDB Atlas | O registro não existe mais | ⏳ |
-| D4 | Como turista, tentar excluir pelo Postman com o token dele | Erro 403 "Usuário não possui permissão" | ⏳ |
+| D1 | Como profissional, clicar em **Excluir** e depois em Cancelar na confirmação | Nada é apagado | ✅* |
+| D2 | Clicar em Excluir e confirmar | O item some da lista | ✅ |
+| D3 | Conferir se a exclusão ficou gravada no MongoDB Atlas | O registro não volta depois de reiniciar o backend (`rs`) e recarregar a página | ✅ |
+| D4 | Como turista, tentar excluir pelo Postman com o token dele | Erro 403 "Usuário não possui permissão" | ✅ |
 
 ---
 
 ## 4. Conferência final da integração
 
 - [ ] Todas as branches do frontend entraram na `main` por Pull Request
-- [ ] Na `main` atualizada, `npm run dev` funciona no backend e no frontend
-- [ ] Todos os testes da seção 3 estão ✅
+- [x] `npm run dev` funciona no backend e no frontend (testado na branch `feature/pedro-css-testes`)
+- [x] Todos os testes da seção 3 passaram
+- [x] Fluxo React → Apollo Client → GraphQL → backend → MongoDB Atlas conferido (C1 e C4)
