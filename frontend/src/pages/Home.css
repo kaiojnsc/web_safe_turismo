@@ -1,0 +1,45 @@
+.home {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.home-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.home-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.home-about {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.home-features h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.home-features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.home-features li {
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.home-features li:last-child {
+  border-bottom: none;
+}
