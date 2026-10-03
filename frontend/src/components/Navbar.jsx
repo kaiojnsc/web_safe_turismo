@@ -1,57 +1,112 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 function Navbar() {
   const { usuario, sair } = useAuth();
   const navigate = useNavigate();
+  const [menuAberto, setMenuAberto] = useState(false);
 
   const handleSair = async () => {
     await sair();
+    setMenuAberto(false);
     navigate('/');
   };
 
+  const fecharMenu = () => {
+    setMenuAberto(false);
+  };
+
+  const linkClass = ({ isActive }) =>
+    `navbar-link ${isActive ? 'active' : ''}`;
+
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
-        <Link to="/" className="navbar-logo">
-          🌍 SafeTour
-        </Link>
-      </div>
+      <div className="navbar-container">
+        <div className="navbar-brand">
+          <Link to="/" className="navbar-logo" onClick={fecharMenu}>
+            SafeTour
+          </Link>
+        </div>
 
-      <ul className="navbar-links">
-        <li>
-          <Link to="/" className="navbar-link">
-            Início
-          </Link>
-        </li>
-        <li>
-          <Link to="/pontos-turisticos" className="navbar-link">
-            Pontos Turísticos
-          </Link>
-        </li>
-        <li>
-          <Link to="/eventos" className="navbar-link">
-            Eventos
-          </Link>
-        </li>
-        {usuario ? (
-          <li className="navbar-usuario">
-            <span>
-              {usuario.nome} ({usuario.perfil})
-            </span>
-            <button type="button" className="navbar-sair" onClick={handleSair}>
-              Sair
-            </button>
-          </li>
-        ) : (
-          <li>
-            <Link to="/login" className="navbar-link">
+        <button
+          type="button"
+          className={`navbar-toggle ${menuAberto ? 'active' : ''}`}
+          onClick={() => setMenuAberto(!menuAberto)}
+          aria-label="Abrir menu"
+          aria-expanded={menuAberto}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div className={`navbar-menu ${menuAberto ? 'active' : ''}`}>
+          <ul className="navbar-links">
+            <li>
+              <NavLink
+                to="/"
+                end
+                className={linkClass}
+                onClick={fecharMenu}
+              >
+                Início
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/pontos-turisticos"
+                className={linkClass}
+                onClick={fecharMenu}
+              >
+                Pontos Turísticos
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/eventos"
+                className={linkClass}
+                onClick={fecharMenu}
+              >
+                Eventos
+              </NavLink>
+            </li>
+          </ul>
+
+          {usuario ? (
+            <div className="navbar-usuario">
+              <div className="navbar-user-info">
+                <span className="navbar-user-name">
+                  {usuario.nome}
+                </span>
+
+                <span className="navbar-user-role">
+                  {usuario.perfil}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="navbar-sair"
+                onClick={handleSair}
+              >
+                Sair
+              </button>
+            </div>
+          ) : (
+            <NavLink
+              to="/login"
+              className="navbar-login"
+              onClick={fecharMenu}
+            >
               Entrar
-            </Link>
-          </li>
-        )}
-      </ul>
+            </NavLink>
+          )}
+        </div>
+      </div>
     </nav>
   );
 }
