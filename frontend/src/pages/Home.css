@@ -1,45 +1,264 @@
 .home {
-  max-width: 720px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+  min-height: calc(100vh - 64px);
+  background-color: #f8fafc;
+  color: #111827;
 }
 
-.home-header {
-  text-align: center;
-  margin-bottom: 2rem;
+.home-hero {
+  padding: 5rem 1.5rem 4rem;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(17, 24, 39, 0.98),
+      rgba(31, 41, 55, 0.96)
+    );
 }
 
-.home-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.25rem;
+.home-hero-content {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-.home-subtitle {
-  font-size: 1.1rem;
-  color: #666;
+.home-eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+
+  color: #9ca3af;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.home-hero h1 {
+  max-width: 760px;
+
+  margin: 0;
+
+  color: #f9fafb;
+
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.05;
+
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.home-hero h1 span {
+  color: #d1d5db;
+}
+
+.home-hero-description {
+  max-width: 680px;
+
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+
+  color: #cbd5e1;
+
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.home-about,
+.home-features {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+
+  box-sizing: border-box;
 }
 
 .home-about {
-  margin-bottom: 2rem;
-  line-height: 1.6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
 }
 
-.home-features h2 {
-  font-size: 1.25rem;
-  margin-bottom: 0.75rem;
+.home-section-heading span {
+  display: block;
+
+  margin-bottom: 0.6rem;
+
+  color: #6b7280;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.home-features ul {
-  list-style: none;
-  padding: 0;
+.home-section-heading h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 2rem;
+  line-height: 1.2;
+
+  letter-spacing: -0.03em;
 }
 
-.home-features li {
-  padding: 0.5rem 0;
+.home-about > p {
+  margin: 1.8rem 0 0;
+
+  color: #4b5563;
+
   font-size: 1rem;
-  border-bottom: 1px solid #eee;
+  line-height: 1.8;
 }
 
-.home-features li:last-child {
-  border-bottom: none;
+.home-features {
+  padding-bottom: 5rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 1.25rem;
+
+  margin-top: 2rem;
+}
+
+.feature-card {
+  min-height: 210px;
+
+  padding: 1.75rem;
+
+  background-color: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #d1d5db;
+
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.feature-number {
+  margin-bottom: 1.5rem;
+
+  color: #9ca3af;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+.feature-card h3 {
+  margin: 0 0 0.7rem;
+
+  color: #111827;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.feature-card p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 900px) {
+  .home-about {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .home-about > p {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 4rem 1.25rem 3rem;
+  }
+
+  .home-hero h1 {
+    font-size: 2.4rem;
+  }
+
+  .home-hero-description {
+    font-size: 1rem;
+  }
+
+  .home-about,
+  .home-features {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .home-about {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .home-section-heading h2 {
+    font-size: 1.6rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-hero {
+    padding: 3rem 1rem 2.5rem;
+  }
+
+  .home-hero h1 {
+    font-size: 2rem;
+  }
+
+  .home-hero-description {
+    font-size: 0.95rem;
+  }
+
+  .home-about,
+  .home-features {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .home-section-heading h2 {
+    font-size: 1.45rem;
+  }
+
+  .feature-card {
+    padding: 1.4rem;
+  }
 }
