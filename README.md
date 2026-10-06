@@ -1,55 +1,10 @@
-# 🌍 SafeTour
+# SafeTour
 
-O **SafeTour** é uma plataforma web de turismo seguro desenvolvida com React, Node.js, GraphQL e MongoDB.
+Aplicação web do projeto SafeTour, desenvolvida com **Node.js + Express + MongoDB + GraphQL** no backend e **React + Vite + Apollo Client** no frontend.
 
-O sistema permite consultar pontos turísticos, eventos e estabelecimentos, além de possuir autenticação e diferentes perfis de usuário.
-
-## 🛠 Tecnologias
+## Como rodar
 
 ### Backend
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- GraphQL
-- JWT
-
-### Frontend
-- React
-- Vite
-- Apollo Client
-- React Router
-
----
-
-# 🚀 Como executar o projeto
-
-## Pré-requisitos
-
-Antes de começar, tenha instalado:
-
-- Node.js
-- npm
-- Git
-- MongoDB local ou uma conta no MongoDB Atlas
-
----
-
-## 1. Clone o repositório
-
-```bash
-git clone https://github.com/kaiojnsc/web_safe_turismo.git
-```
-
-Entre na pasta:
-
-```bash
-cd web_safe_turismo
-```
-
----
-
-## 2. Configure o backend
 
 Na raiz do projeto, instale as dependências:
 
@@ -57,15 +12,7 @@ Na raiz do projeto, instale as dependências:
 npm install
 ```
 
-Crie um arquivo chamado:
-
-```text
-.env
-```
-
-Use o arquivo `.env.example` como referência.
-
-Exemplo:
+Crie o arquivo `.env` a partir do `.env.example`:
 
 ```env
 MONGODB_URI=sua_string_de_conexao
@@ -74,17 +21,15 @@ PORT=3000
 JWT_SECRET=sua_chave_secreta
 ```
 
-> Não envie o arquivo `.env` com credenciais reais para o GitHub.
+Se estiver usando o MongoDB Atlas, certifique-se de que o seu IP atual está autorizado em **Network Access**.
 
-Se estiver utilizando o MongoDB Atlas, certifique-se de que o seu IP está autorizado em **Network Access**.
-
-Depois, inicie o backend:
+Depois execute:
 
 ```bash
 npm run dev
 ```
 
-Se tudo estiver correto, o servidor ficará disponível em:
+O backend ficará disponível em:
 
 ```text
 http://localhost:3000
@@ -102,11 +47,9 @@ Health check:
 http://localhost:3000/health
 ```
 
----
+### Frontend
 
-## 3. Configure o frontend
-
-Abra outro terminal e entre na pasta:
+Em outro terminal, entre na pasta do frontend:
 
 ```bash
 cd frontend
@@ -118,15 +61,7 @@ Instale as dependências:
 npm install
 ```
 
-Crie o arquivo:
-
-```text
-frontend/.env
-```
-
-Use `frontend/.env.example` como referência.
-
-Exemplo:
+Crie o arquivo `frontend/.env` a partir do `frontend/.env.example`:
 
 ```env
 VITE_GRAPHQL_URL=http://localhost:3000/graphql
@@ -144,51 +79,30 @@ O Vite mostrará no terminal o endereço da aplicação, normalmente:
 http://localhost:5173
 ```
 
-Acesse esse endereço pelo navegador.
+## Perfis
 
----
+O sistema possui três perfis:
 
-# 🛡️ Conta profissional
+- `turista`: cadastro público e acesso às informações da plataforma;
+- `instituicao`: cadastro público e gerenciamento do próprio estabelecimento;
+- `profissional`: perfil administrativo do SafeTour.
 
-O perfil profissional não pode ser criado pelo cadastro comum da aplicação.
+Não existe cadastro público para o perfil `profissional`.
 
-Para criar uma conta profissional pelo PowerShell:
+## Criando uma conta profissional
+
+A conta profissional deve ser criada pelo backend.
+
+No PowerShell:
 
 ```powershell
-$env:PROFISSIONAL_SENHA="sua-senha-segura"; npm run criar-profissional -- "Nome do Profissional" email@exemplo.com
+$env:PROFISSIONAL_SENHA="uma-senha-forte"; npm run criar-profissional -- "Nome" email@exemplo.com
 ```
 
 A senha deve possuir pelo menos 8 caracteres.
 
----
+## Observações
 
-# ▶️ Resumo rápido
+Os arquivos `.env` não são enviados para o repositório. Use os arquivos `.env.example` como referência para configurar o projeto localmente.
 
-Use dois terminais.
-
-### Terminal 1 — Backend
-
-```bash
-npm install
-npm run dev
-```
-
-### Terminal 2 — Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Depois acesse:
-
-```text
-http://localhost:5173
-```
-
----
-
-# 📄 Licença
-
-Este projeto utiliza a licença MIT.
+Para executar o sistema, mantenha o backend e o frontend rodando simultaneamente em terminais separados.
