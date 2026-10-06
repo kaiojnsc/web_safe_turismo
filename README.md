@@ -1,185 +1,626 @@
-# SafeTour API
+# 🌍 SafeTour
 
-API do projeto SafeTour (Node.js + Express + MongoDB + JWT), com duas interfaces expostas em paralelo sobre o mesmo domínio: **REST** e **GraphQL**. O frontend (React + Vite + Apollo Client) está em [frontend/](frontend/README.md) e usa o GraphQL.
+O **SafeTour** é uma plataforma web voltada ao turismo seguro, criada para facilitar a descoberta de **pontos turísticos, eventos e estabelecimentos**, reunindo informações importantes sobre cada local e seus respectivos níveis de risco.
 
-## Como rodar
+O projeto possui frontend e backend completos, autenticação de usuários, diferentes níveis de permissão e integração com banco de dados MongoDB.
 
+---
+
+## ✨ Funcionalidades
+
+- 🔎 Pesquisa de pontos turísticos, eventos e estabelecimentos
+- 🗺️ Consulta de informações turísticas
+- 📅 Visualização e gerenciamento de eventos
+- 🏪 Cadastro e gerenciamento de estabelecimentos
+- ⚠️ Gerenciamento de níveis de risco
+- 👤 Cadastro e autenticação de usuários
+- 🏢 Área exclusiva para instituições
+- 🛡️ Painel administrativo para profissionais
+- 🔐 Autenticação com JWT
+- 📱 Interface responsiva
+- 🔌 API REST
+- ⚡ API GraphQL
+- 🍃 Integração com MongoDB
+
+---
+
+## 👥 Perfis de usuário
+
+O SafeTour possui três tipos de perfil.
+
+### 👤 Turista
+
+Usuário comum da plataforma.
+
+Pode:
+
+- criar uma conta;
+- fazer login;
+- pesquisar pontos turísticos;
+- consultar eventos;
+- visualizar estabelecimentos;
+- consultar informações de risco.
+
+---
+
+### 🏢 Instituição
+
+Perfil destinado a estabelecimentos e instituições presentes na plataforma.
+
+Pode:
+
+- criar uma conta;
+- fazer login;
+- cadastrar seu próprio estabelecimento;
+- editar as informações do próprio estabelecimento;
+- consultar pontos turísticos, eventos e informações de risco.
+
+Cada instituição pode possuir **no máximo um estabelecimento**.
+
+A propriedade do estabelecimento é validada pelo backend utilizando o usuário autenticado.
+
+---
+
+### 🛡️ Profissional
+
+É o perfil administrativo do SafeTour.
+
+Pode:
+
+- cadastrar pontos turísticos;
+- editar pontos turísticos;
+- excluir pontos turísticos;
+- cadastrar eventos;
+- editar eventos;
+- excluir eventos;
+- administrar estabelecimentos;
+- definir níveis de risco;
+- acessar o painel profissional.
+
+> Não existe cadastro público para o perfil profissional.
+
+Uma conta profissional deve ser criada por meio do procedimento administrativo disponível no backend.
+
+---
+
+## 🔐 Permissões
+
+| Funcionalidade | Visitante | Turista | Instituição | Profissional |
+|---|:---:|:---:|:---:|:---:|
+| Consultar pontos turísticos | ✅ | ✅ | ✅ | ✅ |
+| Consultar eventos | ✅ | ✅ | ✅ | ✅ |
+| Consultar estabelecimentos | ✅ | ✅ | ✅ | ✅ |
+| Consultar níveis de risco | ✅ | ✅ | ✅ | ✅ |
+| Criar pontos turísticos | ❌ | ❌ | ❌ | ✅ |
+| Editar pontos turísticos | ❌ | ❌ | ❌ | ✅ |
+| Excluir pontos turísticos | ❌ | ❌ | ❌ | ✅ |
+| Criar eventos | ❌ | ❌ | ❌ | ✅ |
+| Editar eventos | ❌ | ❌ | ❌ | ✅ |
+| Excluir eventos | ❌ | ❌ | ❌ | ✅ |
+| Criar estabelecimento próprio | ❌ | ❌ | ✅ | ✅ |
+| Editar estabelecimento próprio | ❌ | ❌ | ✅ | ✅ |
+| Administrar qualquer estabelecimento | ❌ | ❌ | ❌ | ✅ |
+| Alterar níveis de risco | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## 🛠️ Tecnologias utilizadas
+
+### Backend
+
+- Node.js
+- Express
+- MongoDB
+- MongoDB Atlas
+- Mongoose
+- GraphQL
+- JWT
+- bcrypt
+- dotenv
+- CORS
+
+### Frontend
+
+- React
+- Vite
+- React Router
+- Apollo Client
+- GraphQL
+- CSS
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto possui duas interfaces de comunicação com o backend:
+
+- **REST**
+- **GraphQL**
+
+As duas utilizam a mesma camada de regras de negócio.
+
+```text
+SafeTour
+│
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── graphql/
+│       ├── pages/
+│       ├── services/
+│       └── utils/
+│
+├── src/
+│   ├── controllers/
+│   ├── graphql/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── scripts/
+│   ├── services/
+│   └── utils/
+│
+├── .env.example
+├── package.json
+└── README.md
 ```
+
+### Backend
+
+```text
+controllers/
+```
+
+Responsáveis pela comunicação das rotas REST com as regras de negócio.
+
+```text
+graphql/
+```
+
+Contém schema, resolvers e contexto utilizados pela API GraphQL.
+
+```text
+services/
+```
+
+Contém as principais regras de negócio e operações com o banco de dados.
+
+```text
+middlewares/
+```
+
+Responsáveis por autenticação e autorização.
+
+```text
+models/
+```
+
+Schemas do MongoDB utilizando Mongoose.
+
+```text
+routes/
+```
+
+Rotas da API REST.
+
+```text
+scripts/
+```
+
+Scripts administrativos, como a criação de contas profissionais.
+
+---
+
+# 🚀 Como executar o projeto
+
+## Pré-requisitos
+
+Antes de começar, é necessário possuir:
+
+- Node.js instalado
+- npm
+- MongoDB local ou MongoDB Atlas
+- Git
+
+---
+
+## 1. Clone o repositório
+
+```bash
+git clone https://github.com/kaiojnsc/web_safe_turismo.git
+```
+
+Entre na pasta:
+
+```bash
+cd web_safe_turismo
+```
+
+---
+
+# ⚙️ Backend
+
+## 2. Instale as dependências
+
+Na raiz do projeto:
+
+```bash
 npm install
-cp .env.example .env
 ```
 
-Preencha o `.env` com a string de conexão do MongoDB (Atlas ou local) e uma chave para o JWT. Se o Atlas recusar a conexão, libere o seu IP atual em *Network Access* no painel do Atlas.
+---
 
+## 3. Configure as variáveis de ambiente
+
+Crie um arquivo:
+
+```text
+.env
 ```
+
+na raiz do projeto.
+
+Utilize o arquivo:
+
+```text
+.env.example
+```
+
+como referência.
+
+Exemplo:
+
+```env
+MONGODB_URI=sua_string_de_conexao
+MONGODB_DB=safetour
+PORT=3000
+JWT_SECRET=sua_chave_secreta
+```
+
+> Nunca envie o arquivo `.env` com credenciais reais para o GitHub.
+
+Caso utilize o MongoDB Atlas e a conexão seja recusada, verifique se o IP atual está autorizado em **Network Access**.
+
+---
+
+## 4. Inicie o backend
+
+```bash
 npm run dev
 ```
 
-O token JWT (emitido no login, REST ou GraphQL) expira em 2 horas e deve ser enviado como:
+Quando a aplicação iniciar corretamente:
 
+```text
+Servidor: http://localhost:3000
+GraphQL: http://localhost:3000/graphql
+Health: http://localhost:3000/health
 ```
-Authorization: Bearer <token>
-```
 
-## Perfis
+---
 
-Existem exatamente três perfis:
+# 💻 Frontend
 
-| Perfil        | Quem é                                         | Como obtém a conta                       |
-|---------------|------------------------------------------------|------------------------------------------|
-| `turista`     | Visitante que consulta o conteúdo               | Cadastro público (`/cadastro`)           |
-| `instituicao` | Estabelecimento (no máximo **um** por conta)    | Cadastro público (`/cadastro`)           |
-| `profissional`| **Administrador global** do SafeTour            | Somente por procedimento administrativo  |
+Abra outro terminal.
 
-**Não existe cadastro público de profissional.** O backend recusa `perfil: "profissional"` (ou qualquer valor fora de `turista`/`instituicao`) no cadastro, tanto no REST quanto no GraphQL. Não existe um perfil `admin` separado.
-
-### Criando uma conta profissional
-
-Use o script administrativo no servidor. A senha vem de uma variável de ambiente (nunca fica no código nem no histórico do repositório):
-
-```powershell
-# PowerShell
-$env:PROFISSIONAL_SENHA="uma-senha-forte"; npm run criar-profissional -- "Nome" email@exemplo.com
-```
+Entre na pasta:
 
 ```bash
-# Bash
-PROFISSIONAL_SENHA="uma-senha-forte" npm run criar-profissional -- "Nome" email@exemplo.com
+cd frontend
 ```
 
-Se o e-mail já existir, a conta é promovida a `profissional` (nenhum dado é apagado). A senha precisa ter pelo menos 8 caracteres.
+Instale as dependências:
 
-### Permissões
-
-| Ação                                                        | Visitante | Turista | Instituição        | Profissional |
-|-------------------------------------------------------------|:---------:|:-------:|:------------------:|:------------:|
-| Consultar pontos, eventos, estabelecimentos, áreas de risco  | ✅        | ✅      | ✅                 | ✅           |
-| Criar/editar/excluir pontos turísticos e eventos             | ❌        | ❌      | ❌                 | ✅           |
-| Alterar nível de risco                                       | ❌        | ❌      | ❌                 | ✅           |
-| Criar o próprio estabelecimento                              | ❌        | ❌      | ✅ (apenas 1)      | ✅           |
-| Editar estabelecimento                                       | ❌        | ❌      | ✅ (só o próprio)  | ✅ (qualquer)|
-| Excluir estabelecimento                                      | ❌        | ❌      | ❌                 | ✅           |
-
-Regras de segurança aplicadas **no backend**:
-
-- O dono de um estabelecimento (`criadoPor`) é sempre o usuário autenticado; o schema nem aceita esse campo no input.
-- O perfil usado nas autorizações é o gravado no banco no momento da requisição (não o do token). Conta excluída perde o acesso imediatamente.
-- `loginProfissional` só concede acesso se `perfil === "profissional"`; o login comum recusa contas profissionais.
-- Uma instituição não consegue criar um segundo estabelecimento, nem repetindo a mutation ou disparando requisições simultâneas.
-- `criadoPor` aparece publicamente apenas como `{ id, nome, perfil }` (o tipo `Autor`), nunca com e-mail.
-- `excluirPerfil` **não apaga** pontos turísticos nem eventos. Apaga apenas o estabelecimento da própria instituição que está excluindo a conta. Contas profissionais não se auto-excluem.
-
-## REST
-
-| Método | Rota                       | Acesso                                         |
-|--------|----------------------------|------------------------------------------------|
-| POST   | /auth/cadastro             | Público (somente turista ou instituição)       |
-| POST   | /auth/login                | Público                                        |
-| POST   | /auth/login-profissional   | Público (só entra quem é profissional)         |
-| GET    | /usuarios/me               | Autenticado (próprio perfil)                   |
-| PUT    | /usuarios/me               | Autenticado (próprio perfil)                   |
-| DELETE | /usuarios/me               | Autenticado (turista e instituição)            |
-| POST   | /pontos-turisticos         | Somente profissional                           |
-| GET    | /pontos-turisticos         | Autenticado                                    |
-| GET    | /pontos-turisticos/:id     | Autenticado                                    |
-| PUT    | /pontos-turisticos/:id     | Somente profissional                           |
-| DELETE | /pontos-turisticos/:id     | Somente profissional                           |
-| POST   | /eventos                   | Somente profissional                           |
-| GET    | /eventos                   | Autenticado                                    |
-| GET    | /eventos/:id               | Autenticado                                    |
-| PUT    | /eventos/:id               | Somente profissional                           |
-| DELETE | /eventos/:id               | Somente profissional                           |
-| POST   | /estabelecimentos          | Instituição (1 por conta) e profissional       |
-| GET    | /estabelecimentos          | Autenticado                                    |
-| GET    | /estabelecimentos/:id      | Autenticado                                    |
-| PUT    | /estabelecimentos/:id      | Instituição (só o próprio) e profissional      |
-| DELETE | /estabelecimentos/:id      | Somente profissional                           |
-
-## GraphQL
-
-Endpoint único: `POST /graphql`. Schema completo em [src/graphql/schema.js](src/graphql/schema.js).
-
-```
-curl -X POST http://localhost:3000/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query":"mutation { login(input: { email: \"a@a.com\", senha: \"123456\" }) { token mensagem } }"}'
+```bash
+npm install
 ```
 
-| Operação                                              | Tipo     | Acesso                                     |
-|-------------------------------------------------------|----------|--------------------------------------------|
-| cadastrar                                             | Mutation | Público (turista ou instituição)           |
-| login                                                 | Mutation | Público (turista e instituição)            |
-| loginProfissional                                     | Mutation | Público (só entra quem é profissional)     |
-| perfil                                                | Query    | Autenticado                                |
-| atualizarPerfil                                       | Mutation | Autenticado                                |
-| excluirPerfil                                         | Mutation | Turista e instituição                      |
-| pontosTuristicos / pontoTuristico                     | Query    | **Público**                                |
-| eventos / evento                                      | Query    | **Público**                                |
-| estabelecimentos / estabelecimento                    | Query    | **Público**                                |
-| areasDeRisco                                          | Query    | **Público**                                |
-| meuEstabelecimento                                    | Query    | Autenticado (devolve o da própria conta)   |
-| cadastrarPontoTuristico / atualizar / excluir         | Mutation | Somente profissional                       |
-| cadastrarEvento / atualizar / excluir                 | Mutation | Somente profissional                       |
-| definirNivelRiscoPontoTuristico / definirNivelRiscoEvento | Mutation | Somente profissional                   |
-| cadastrarEstabelecimento                              | Mutation | Instituição (1 por conta) e profissional   |
-| atualizarEstabelecimento                              | Mutation | Instituição (só o próprio) e profissional  |
-| excluirEstabelecimento                                | Mutation | Somente profissional                       |
+Configure o arquivo:
 
-## Para teste do QA
-
-Guia rápido para testar no Postman. O resto das rotas segue a mesma lógica (veja as tabelas acima).
-
-### Como usar o token JWT no Postman
-
-1. Faça login primeiro (exemplo #3 abaixo). A resposta vem com um campo `token`.
-2. Copie esse valor.
-3. Nas próximas requisições que precisam de login, vá na aba **Authorization**, escolha **Bearer Token** e cole o token (sem escrever "Bearer").
-4. O token expira em **2 horas**. Se um teste que funcionava começar a voltar `401`, faça login de novo.
-5. Dica: crie um Environment com a variável `token` e, na aba **Tests** do login, adicione `pm.environment.set("token", pm.response.json().token);`.
-
-### Exemplos de requisições
-
-**1. Cadastrar um turista** `POST /auth/cadastro`
-
-```json
-{ "nome": "Kaio", "email": "kaio@teste.com", "senha": "123456" }
-```
-Sem o campo `perfil`, o cadastro cai como `turista`. Para uma instituição envie `"perfil": "instituicao"`.
-
-**2. Tentar cadastrar um profissional** `POST /auth/cadastro`
-
-```json
-{ "nome": "Kill", "email": "kill@teste.com", "senha": "123456", "perfil": "profissional" }
-```
-Deve retornar `403` ("Não é possível criar uma conta profissional pelo cadastro público"). Contas profissionais são criadas com `npm run criar-profissional` (veja acima).
-
-**3. Login** `POST /auth/login` (turista/instituição) ou `POST /auth/login-profissional` (profissional)
-
-```json
-{ "email": "kaio@teste.com", "senha": "123456" }
+```text
+frontend/.env
 ```
 
-**4. Criar um ponto turístico (precisa ser profissional)** `POST /pontos-turisticos`
+utilizando:
 
-```json
-{ "nome": "Açude Velho", "descricao": "Cartão-postal da cidade", "categoria": "lazer", "endereco": "Centro" }
+```text
+frontend/.env.example
 ```
-Só `nome` e `descricao` são obrigatórios.
 
-**5. Mesma requisição do #4 com o token de um turista ou instituição** deve dar `403` ("Usuário não possui permissão").
+como referência.
 
-## Arquitetura
+Exemplo:
 
-REST e GraphQL são só a camada de transporte: as duas expõem a mesma lógica de domínio, que vive em `src/services/*` (validação, regras de negócio, acesso ao banco). Autenticação (JWT) e autorização por perfil (`turista`/`instituicao`/`profissional`) seguem a mesma regra nos dois.
-
+```env
+VITE_GRAPHQL_URL=http://localhost:3000/graphql
 ```
-src/
-├── controllers/   # tradução HTTP (REST) <-> services
-├── graphql/        # schema, resolvers e contexto (GraphQL) <-> services
-├── services/       # regras de negócio e acesso ao banco, compartilhado
-├── middlewares/    # authMiddleware (REST)
-├── models/          # schemas Mongoose
-├── routes/          # rotas REST
-├── scripts/         # criarProfissional (procedimento administrativo)
-└── utils/            # AppError, geração/validação de JWT, tratamento de erro REST
+
+Depois execute:
+
+```bash
+npm run dev
 ```
+
+Por padrão, o Vite disponibilizará a aplicação em um endereço semelhante a:
+
+```text
+http://localhost:5173
+```
+
+---
+
+# 🛡️ Criando uma conta profissional
+
+Por segurança, contas profissionais não podem ser criadas através do cadastro público.
+
+O cadastro é realizado diretamente pelo backend utilizando o script administrativo do projeto.
+
+## PowerShell
+
+```powershell
+$env:PROFISSIONAL_SENHA="sua-senha-segura"; npm run criar-profissional -- "Nome do Profissional" email@exemplo.com
+```
+
+## Bash
+
+```bash
+PROFISSIONAL_SENHA="sua-senha-segura" npm run criar-profissional -- "Nome do Profissional" email@exemplo.com
+```
+
+A senha deve possuir pelo menos **8 caracteres**.
+
+Se já existir uma conta com o e-mail informado, ela poderá ser promovida para o perfil profissional sem apagar os dados existentes.
+
+---
+
+# 🔌 GraphQL
+
+A API GraphQL está disponível em:
+
+```text
+POST http://localhost:3000/graphql
+```
+
+Entre as principais operações estão:
+
+### Queries
+
+```text
+perfil
+pontosTuristicos
+pontoTuristico
+eventos
+evento
+estabelecimentos
+estabelecimento
+areasDeRisco
+meuEstabelecimento
+```
+
+### Mutations
+
+```text
+cadastrar
+login
+loginProfissional
+atualizarPerfil
+excluirPerfil
+
+cadastrarPontoTuristico
+atualizarPontoTuristico
+excluirPontoTuristico
+
+cadastrarEvento
+atualizarEvento
+excluirEvento
+
+cadastrarEstabelecimento
+atualizarEstabelecimento
+excluirEstabelecimento
+
+definirNivelRiscoPontoTuristico
+definirNivelRiscoEvento
+```
+
+---
+
+# 🌐 API REST
+
+O backend também disponibiliza uma API REST.
+
+## Autenticação
+
+```text
+POST /auth/cadastro
+POST /auth/login
+POST /auth/login-profissional
+```
+
+## Usuário
+
+```text
+GET    /usuarios/me
+PUT    /usuarios/me
+DELETE /usuarios/me
+```
+
+## Pontos turísticos
+
+```text
+GET    /pontos-turisticos
+GET    /pontos-turisticos/:id
+POST   /pontos-turisticos
+PUT    /pontos-turisticos/:id
+DELETE /pontos-turisticos/:id
+```
+
+## Eventos
+
+```text
+GET    /eventos
+GET    /eventos/:id
+POST   /eventos
+PUT    /eventos/:id
+DELETE /eventos/:id
+```
+
+## Estabelecimentos
+
+```text
+GET    /estabelecimentos
+GET    /estabelecimentos/:id
+POST   /estabelecimentos
+PUT    /estabelecimentos/:id
+DELETE /estabelecimentos/:id
+```
+
+---
+
+# 🔑 Autenticação JWT
+
+Após o login, o servidor retorna um token JWT.
+
+Nas rotas REST protegidas, envie o token através do cabeçalho:
+
+```text
+Authorization: Bearer SEU_TOKEN
+```
+
+O token possui tempo de expiração.
+
+No frontend, a autenticação é gerenciada automaticamente pela aplicação.
+
+---
+
+# 🔒 Regras de segurança
+
+O SafeTour possui regras de autorização aplicadas no backend.
+
+Entre elas:
+
+- instituições só podem editar o próprio estabelecimento;
+- uma instituição não pode possuir mais de um estabelecimento;
+- o proprietário do estabelecimento é determinado através do usuário autenticado;
+- o frontend não pode escolher livremente quem é o proprietário de um estabelecimento;
+- somente profissionais podem administrar pontos turísticos e eventos;
+- somente profissionais podem alterar níveis de risco;
+- contas profissionais não podem ser criadas pelo cadastro público;
+- o login profissional é separado do login comum;
+- a exclusão de perfil não remove pontos turísticos nem eventos administrativos.
+
+---
+
+# 🗄️ Banco de dados
+
+O projeto utiliza:
+
+```text
+MongoDB
+```
+
+com:
+
+```text
+Mongoose
+```
+
+para modelagem e acesso aos dados.
+
+O sistema pode utilizar tanto uma instância local quanto o:
+
+```text
+MongoDB Atlas
+```
+
+---
+
+# 📱 Interface
+
+O frontend foi desenvolvido com foco em uma experiência moderna de turismo.
+
+A aplicação possui:
+
+- página inicial;
+- busca;
+- listagem de pontos turísticos;
+- listagem de eventos;
+- listagem de estabelecimentos;
+- cadastro;
+- login;
+- acesso profissional;
+- área de gerenciamento da instituição;
+- painel profissional;
+- tratamento de páginas inexistentes;
+- estados de carregamento;
+- mensagens de erro e sucesso;
+- layout responsivo.
+
+---
+
+# 🧪 Testes
+
+O projeto possui um guia adicional de testes em:
+
+```text
+frontend/TESTES.md
+```
+
+Antes da entrega ou publicação de uma nova versão, recomenda-se validar:
+
+- cadastro de turista;
+- cadastro de instituição;
+- login;
+- login profissional;
+- proteção das rotas;
+- criação e edição de estabelecimento;
+- CRUD de pontos turísticos;
+- CRUD de eventos;
+- gerenciamento de níveis de risco;
+- busca;
+- responsividade;
+- build do frontend.
+
+Para validar o build do frontend:
+
+```bash
+cd frontend
+npm run build
+```
+
+---
+
+# 📌 Principais regras de negócio
+
+### Turista
+
+Pode consumir o conteúdo da plataforma, mas não pode realizar operações administrativas.
+
+### Instituição
+
+Pode possuir apenas um estabelecimento e administrar somente esse estabelecimento.
+
+### Profissional
+
+Possui acesso administrativo global e é responsável pelo gerenciamento de pontos turísticos, eventos, estabelecimentos e níveis de risco.
+
+---
+
+# 📄 Licença
+
+Este projeto está licenciado sob a licença **MIT**.
+
+Consulte o arquivo:
+
+```text
+LICENSE
+```
+
+para mais informações.
+
+---
+
+# 🌍 SafeTour
+
+**Turismo, informação e segurança em um só lugar.**
