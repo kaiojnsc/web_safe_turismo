@@ -1,6 +1,26 @@
 const Evento = require('../models/Evento');
 const AppError = require('../utils/AppError');
 
+const NIVEIS_RISCO = ['baixo', 'medio', 'alto'];
+
+const definirNivelRisco = async (id, nivelRisco) => {
+  if (!NIVEIS_RISCO.includes(nivelRisco)) {
+    throw new AppError('Nível de risco deve ser baixo, medio ou alto', 400, 'BAD_REQUEST');
+  }
+
+  const evento = await Evento.findByIdAndUpdate(
+    id,
+    { nivelRisco },
+    { new: true, runValidators: true }
+  ).populate('criadoPor', '-senha');
+
+  if (!evento) {
+    throw new AppError('Evento não encontrado', 404, 'NOT_FOUND');
+  }
+
+  return evento;
+};
+
 const criar = async (dados, usuarioId) => {
   const { nome, descricao, data, local } = dados;
 
@@ -61,5 +81,6 @@ module.exports = {
   listar,
   buscarPorId,
   atualizar,
-  excluir
+  excluir,
+  definirNivelRisco
 };

@@ -1,87 +1,252 @@
-import './Home.css';
+import { Link } from "react-router-dom";
+import { useQuery } from "@apollo/client/react";
+
+import { useAuth } from "../context/AuthContext";
+
+import { GET_AREAS_RISCO, GET_DESCOBERTA } from "../graphql/queries";
+import {
+  IMG_EVENTO,
+  IMG_HERO,
+  IMG_PONTO,
+  IMG_SEGURANCA,
+  formatarData,
+  imagemEstabelecimento,
+  unicos,
+  valorData,
+} from "../utils/helpers";
+
+import BuscaHero from "../components/BuscaHero";
+import CardLugar from "../components/CardLugar";
+import Icon from "../components/Icon";
+import Loading from "../components/Loading";
+import ErrorMessage from "../components/ErrorMessage";
+import RiscoSelect from "../components/RiscoSelect";
+import "./Home.css";
+
+function SecaoTitulo({ eyebrow, titulo, link, rotuloLink }) {
+  return (
+    <div className="secao-titulo">
+      <div>
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+        <h2>{titulo}</h2>
+      </div>
+      {link && (
+        <Link to={link} className="secao-link">
+          {rotuloLink}
+          <Icon nome="seta" tamanho={18} />
+        </Link>
+      )}
+    </div>
+  );
+}
 
 function Home() {
+  const { usuario } = useAuth();
+  const { loading, error, data } = useQuery(GET_DESCOBERTA);
+  const { data: dadosRisco } = useQuery(GET_AREAS_RISCO);
+
+  const pontos = data?.pontosTuristicos || [];
+  const eventos = data?.eventos || [];
+  const estabelecimentos = data?.estabelecimentos || [];
+  const areas = dadosRisco?.areasDeRisco || [];
+
+  // Próximos eventos primeiro
+  const proximosEventos = [...eventos].sort((a, b) => valorData(a.data) - valorData(b.data));
+
+  // "Onde visitar": cidades dos estabelecimentos e das áreas cadastradas
+  const cidades = unicos([...estabelecimentos.map((e) => e.cidade), ...areas.map((a) => a.cidade)]);
+
   return (
     <main className="home">
       <section className="home-hero">
-        <div className="home-hero-content">
-          <span className="home-eyebrow">Turismo com informação e segurança</span>
+        <h1>Para onde você vai?</h1>
+        <BuscaHero />
+      </section>
 
-          <h1>
-            Planeje melhor cada visita com o <span>SafeTour</span>
-          </h1>
+      <section className="container">
+        <div className="home-banner">
+          <div className="home-banner-imagem">
+            <img src={IMG_HERO} alt="Praia com mar azul-turquesa ao entardecer" />
+          </div>
 
-          <p className="home-hero-description">
-            Consulte pontos turísticos, eventos, estabelecimentos e áreas de
-            risco em um só lugar. Informações organizadas para ajudar turistas
-            a conhecer novos destinos com mais tranquilidade.
-          </p>
+          <div className="home-banner-texto">
+            <h2>Descubra lugares incríveis e viaje com segurança</h2>
+            <p>
+              Pontos turísticos, eventos e estabelecimentos reunidos em um só lugar, com
+              informações de risco para você planejar cada passeio com tranquilidade.
+            </p>
+            <div className="home-banner-botoes">
+              <Link to="/pontos-turisticos" className="button grande">
+                Explorar destinos
+              </Link>
+              {!usuario && (
+                <Link to="/cadastro" className="button grande ghost">
+                  Criar conta grátis
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="home-about">
-        <div className="home-section-heading">
-          <span>Sobre a plataforma</span>
-          <h2>Informação útil para uma experiência de turismo mais segura</h2>
+      {loading && <Loading />}
+      {error && (
+        <div className="container">
+          <ErrorMessage message={`Não foi possível carregar os dados: ${error.message}`} />
         </div>
+      )}
 
-        <p>
-          O SafeTour reúne informações importantes sobre diferentes pontos de
-          uma cidade, facilitando o planejamento de visitas e o acesso a dados
-          relevantes antes e durante o passeio.
-        </p>
-      </section>
+      {!loading && !error && (
+        <>
+          <section className="container home-secao">
+            <SecaoTitulo
+              eyebrow="Descubra lugares"
+              titulo="Pontos turísticos em destaque"
+              link="/pontos-turisticos"
+              rotuloLink="Ver todos"
+            />
 
-      <section className="home-features">
-        <div className="home-section-heading">
-          <span>Recursos</span>
-          <h2>O que você encontra no SafeTour</h2>
-        </div>
+            {pontos.length === 0 ? (
+              <div className="empty">
+                <strong>Ainda não há pontos turísticos</strong>
+                Assim que forem cadastrados eles aparecem aqui.
+              </div>
+            ) : (
+              <div className="cards-grid">
+                {pontos.slice(0, 3).map((ponto) => (
+                  <CardLugar
+                    key={ponto.id}
+                    imagem={IMG_PONTO}
+                    selo={ponto.categoria || "Ponto turístico"}
+                    risco={<RiscoSelect valor={ponto.nivelRisco} />}
+                    titulo={ponto.nome}
+                    local={ponto.endereco}
+                    descricao={ponto.descricao}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
 
-        <div className="features-grid">
-          <article className="feature-card">
-            <div className="feature-number">01</div>
+          <section className="container home-secao">
+            <SecaoTitulo
+              eyebrow="Agenda"
+              titulo="Eventos para não perder"
+              link="/eventos"
+              rotuloLink="Ver agenda"
+            />
 
-            <h3>Pontos turísticos</h3>
+            {proximosEventos.length === 0 ? (
+              <div className="empty">
+                <strong>Nenhum evento por enquanto</strong>
+                Volte em breve para conferir a agenda.
+              </div>
+            ) : (
+              <div className="cards-grid">
+                {proximosEventos.slice(0, 3).map((evento) => (
+                  <CardLugar
+                    key={evento.id}
+                    imagem={IMG_EVENTO}
+                    selo={formatarData(evento.data)}
+                    risco={<RiscoSelect valor={evento.nivelRisco} />}
+                    titulo={evento.nome}
+                    local={evento.local}
+                    descricao={evento.descricao}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
 
+          {cidades.length > 0 && (
+            <section className="container home-secao">
+              <SecaoTitulo eyebrow="Onde visitar" titulo="Explore por cidade" />
+
+              <div className="cidades">
+                {cidades.map((cidade) => (
+                  <Link key={cidade} to={`/busca?q=${encodeURIComponent(cidade)}`} className="cidade-chip">
+                    <Icon nome="pin" tamanho={18} />
+                    {cidade}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="container home-secao">
+            <SecaoTitulo
+              eyebrow="Para comer e se hospedar"
+              titulo="Estabelecimentos"
+              link="/estabelecimentos"
+              rotuloLink="Ver todos"
+            />
+
+            {estabelecimentos.length === 0 ? (
+              <div className="empty">
+                <strong>Nenhum estabelecimento cadastrado</strong>
+                Instituições podem criar uma conta e divulgar seu espaço no SafeTour.
+              </div>
+            ) : (
+              <div className="cards-grid">
+                {estabelecimentos.slice(0, 3).map((estab) => (
+                  <CardLugar
+                    key={estab.id}
+                    imagem={imagemEstabelecimento(estab.categoria)}
+                    selo={estab.categoria}
+                    titulo={estab.nome}
+                    local={[estab.cidade, estab.endereco].filter(Boolean).join(" · ")}
+                    descricao={estab.descricao}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      <section className="container home-secao">
+        <div className="home-seguranca">
+          <div className="home-seguranca-texto">
+            <span className="eyebrow">Turismo com segurança</span>
+            <h2>Informação para decidir com confiança</h2>
             <p>
-              Encontre lugares para visitar e consulte informações importantes
-              sobre cada ponto turístico.
+              Cada ponto turístico e evento recebe um nível de risco definido por profissionais
+              do SafeTour. Consulte antes de sair e aproveite mais o seu destino.
             </p>
-          </article>
 
-          <article className="feature-card">
-            <div className="feature-number">02</div>
+            <ul className="legenda-risco">
+              <li>
+                <RiscoSelect valor="baixo" /> Tranquilo para visitar
+              </li>
+              <li>
+                <RiscoSelect valor="medio" /> Atenção redobrada
+              </li>
+              <li>
+                <RiscoSelect valor="alto" /> Evite ou vá acompanhado
+              </li>
+            </ul>
 
-            <h3>Eventos</h3>
+            {areas.length > 0 && (
+              <div className="areas-risco">
+                <h3>Áreas monitoradas</h3>
+                <ul>
+                  {areas.slice(0, 4).map((area) => (
+                    <li key={area.id}>
+                      <RiscoSelect valor={area.nivel} />
+                      <span>
+                        <strong>{area.cidade}</strong>
+                        {area.regiao ? ` · ${area.regiao}` : ""}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
-            <p>
-              Acompanhe eventos disponíveis e veja o que está acontecendo na
-              região durante sua visita.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <div className="feature-number">03</div>
-
-            <h3>Estabelecimentos</h3>
-
-            <p>
-              Consulte serviços, comércios e locais úteis próximos aos seus
-              destinos.
-            </p>
-          </article>
-
-          <article className="feature-card">
-            <div className="feature-number">04</div>
-
-            <h3>Áreas de risco</h3>
-
-            <p>
-              Visualize informações sobre regiões que exigem maior atenção e
-              planeje seus deslocamentos com mais segurança.
-            </p>
-          </article>
+          <div className="home-seguranca-imagem">
+            <img src={IMG_SEGURANCA} alt="Casal caminhando em uma trilha com vista para as montanhas" loading="lazy" />
+          </div>
         </div>
       </section>
     </main>

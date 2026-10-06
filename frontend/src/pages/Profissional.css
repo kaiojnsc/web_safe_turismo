@@ -1,0 +1,142 @@
+/* ---------- Painel profissional ---------- */
+
+.painel-cartoes {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
+}
+
+.painel-cartao {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 1.4rem;
+  text-align: left;
+  font: inherit;
+  color: var(--cinza-700);
+  background: #fff;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-lg);
+  box-shadow: var(--sombra);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.painel-cartao:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra-lg);
+  border-color: var(--verde-600);
+}
+
+.painel-cartao strong {
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--verde-900);
+  letter-spacing: -0.03em;
+}
+
+.painel-cartao-icone {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 0.6rem;
+  border-radius: 14px;
+  background: var(--verde-claro);
+  color: var(--verde-700);
+}
+
+.painel-atalhos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.painel-atalhos > div {
+  padding: 1.75rem;
+  border-radius: var(--raio-lg);
+  background: var(--cinza-50);
+  border: 1px solid var(--cor-borda);
+}
+
+.painel-atalhos h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.painel-atalhos p {
+  margin: 0 0 1.25rem;
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Níveis de risco ---------- */
+
+.risco-colunas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.risco-bloco {
+  padding: 1.5rem;
+  border-radius: var(--raio-lg);
+  border: 1px solid var(--cor-borda);
+  background: #fff;
+  box-shadow: var(--sombra);
+}
+
+.risco-bloco h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.risco-areas {
+  margin-top: 1.5rem;
+}
+
+.risco-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.risco-lista li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.25rem;
+  border-bottom: 1px solid var(--cinza-100);
+}
+
+.risco-lista li:last-child {
+  border-bottom: none;
+}
+
+.risco-lista-nome {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.risco-lista-nome strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.risco-lista-nome small {
+  color: var(--cor-texto-suave);
+}
+
+@media (max-width: 560px) {
+  .risco-colunas {
+    grid-template-columns: 1fr;
+  }
+}

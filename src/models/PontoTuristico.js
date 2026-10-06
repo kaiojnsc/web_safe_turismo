@@ -8,6 +8,7 @@ const pontoTuristicoSchema = new mongoose.Schema(
     endereco: { type: String, trim: true },
     latitude: { type: Number, min: -90, max: 90 },
     longitude: { type: Number, min: -180, max: 180 },
+    nivelRisco: { type: String, enum: ['baixo', 'medio', 'alto'], default: 'baixo' },
     criadoPor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario',

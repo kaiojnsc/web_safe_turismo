@@ -1,134 +1,113 @@
-# Testes do Frontend — SafeTour (Parte 2)
-
-Responsável: **Pedro** (CSS, testes e integração final)
+# Testes — SafeTour
 
 Fluxo testado: **React → Apollo Client → GraphQL → backend → MongoDB**
 
-Status usado nas tabelas:
-- ✅ passou no teste manual, no PC, com o backend ligado ao MongoDB Atlas
-- ✅* passou no teste automatizado: navegador automático com o backend real (schema, resolvers e JWT), mas com o banco em memória
-- ❌ falhou
-- ⏳ ainda não testado
+Legenda: ✅ passou · ❌ falhou · ⏳ não testado
 
-**Rodada de testes:** 02/10/2026.
+**Rodada de testes mais recente:** 06/10/2026 (automatizada: backend real + MongoDB local em um banco descartável `safetour_teste`, frontend real e Edge em modo headless; nenhum dado do Atlas foi tocado).
 
 ---
 
-## 1. Operações GraphQL que o frontend deve usar
+## 1. Operações GraphQL usadas pelo frontend
 
-Elas precisam ter **exatamente** estes nomes e argumentos (tirados de `src/graphql/schema.js`):
+Nomes e argumentos conferidos com `src/graphql/schema.js`. As consultas (`pontosTuristicos`, `eventos`, `estabelecimentos`, `areasDeRisco`) são **públicas**; as demais exigem o perfil indicado no [README da raiz](../README.md).
 
-**Login (para conseguir o token)**
 ```graphql
-mutation Login($input: LoginInput!) {
-  login(input: $input) { token mensagem usuario { id nome perfil } }
-}
+mutation Login($input: LoginInput!)             { login(input: $input) { token usuario { id nome email perfil } } }
+mutation LoginProfissional($input: LoginInput!) { loginProfissional(input: $input) { token usuario { id nome email perfil } } }
+mutation Cadastrar($input: CadastroInput!)      { cadastrar(input: $input) { usuario { id perfil } } }
+query    { perfil { id nome email perfil } }
+query    { pontosTuristicos { id nome descricao categoria endereco nivelRisco } }
+query    { eventos { id nome descricao data local nivelRisco } }
+query    { estabelecimentos { id nome descricao categoria endereco cidade latitude longitude } }
+query    { meuEstabelecimento { id nome cidade } }
+mutation CadastrarEstabelecimento($input: EstabelecimentoInput!)
+mutation AtualizarEstabelecimento($id: ID!, $input: AtualizarEstabelecimentoInput!)
+mutation ExcluirEstabelecimento($id: ID!)
+# + cadastrar/atualizar/excluir PontoTuristico e Evento, definirNivelRisco*
 ```
 
-**Pontos Turísticos**
-```graphql
-query { pontosTuristicos { id nome descricao categoria endereco } }
-
-mutation Cadastrar($input: PontoTuristicoInput!) {
-  cadastrarPontoTuristico(input: $input) { id nome }
-}
-mutation Atualizar($id: ID!, $input: AtualizarPontoTuristicoInput!) {
-  atualizarPontoTuristico(id: $id, input: $input) { id nome }
-}
-mutation Excluir($id: ID!) {
-  excluirPontoTuristico(id: $id) { mensagem }
-}
-```
-Campos obrigatórios no cadastro: `nome` e `descricao`.
-
-**Eventos**
-```graphql
-query { eventos { id nome descricao data local } }
-
-mutation Cadastrar($input: EventoInput!) {
-  cadastrarEvento(input: $input) { id nome }
-}
-mutation Atualizar($id: ID!, $input: AtualizarEventoInput!) {
-  atualizarEvento(id: $id, input: $input) { id nome }
-}
-mutation Excluir($id: ID!) {
-  excluirEvento(id: $id) { mensagem }
-}
-```
-Campos obrigatórios no cadastro: `nome`, `descricao`, `data` e `local`.
-
-> Observação: as exclusões devolvem `{ mensagem }`, e não um valor simples como no roteiro (`deletarPessoa(id)`). Por isso, a mutation precisa pedir o campo `mensagem`.
+As exclusões devolvem `{ mensagem }`, então a mutation precisa pedir o campo `mensagem`.
 
 ---
 
-## 2. Preparação antes de testar
+## 2. Como repetir os testes manualmente
 
-1. Backend rodando: `npm run dev` na raiz (deve aparecer `GraphQL: http://localhost:3000/graphql`).
-2. Frontend rodando: `cd frontend` → `npm install` → conferir se o `.env` tem `VITE_GRAPHQL_URL=http://localhost:3000/graphql` → `npm run dev` → abrir `http://localhost:5173`.
-3. Ter dois usuários cadastrados (pode ser pelo Postman, como no README):
-   - **Turista:** `kaio@teste.com` / `123456`
-   - **Profissional:** `kill@teste.com` / `123456` com `"perfil": "profissional"`
-
----
-
-## 3. Roteiro de testes
-
-### 3.1 Visual (CSS)
-
-| # | O que fazer | Resultado esperado | Status |
-|---|-------------|--------------------|--------|
-| V1 | Abrir `/` | Navbar escura no topo, Home centralizada | ✅* |
-| V2 | Clicar nos links da Navbar | Troca de página sem recarregar o navegador | ✅* |
-| V3 | Logado como profissional, abrir a página de Pontos Turísticos | Título, botão verde de novo cadastro e tabela com cabeçalho escuro | ✅ |
-| V4 | Clicar no botão de novo cadastro | Formulário branco com borda superior escura | ✅* |
-| V5 | Clicar dentro de um campo | Borda do campo fica escura (foco) | ✅ |
-| V6 | Tentar salvar com campo obrigatório vazio | Navegador bloqueia e o campo fica com borda vermelha | ✅* |
-| V7 | Diminuir a janela para largura de celular (F12 → modo celular) | Nada fica cortado; a tabela rola para o lado | ✅* |
-| V8 | Desligar o backend e recarregar a lista | Aparece a caixa vermelha de erro (ErrorMessage) | ✅ |
-| V9 | Recarregar a lista com a internet lenta (F12 → Network → Slow 3G) | Aparece o spinner "Carregando..." | ✅ |
-
-### 3.2 GET — listagem
-
-| # | O que fazer | Resultado esperado | Status |
-|---|-------------|--------------------|--------|
-| G1 | Logado como turista, abrir Pontos Turísticos | Lista aparece (ou a mensagem de "nenhum cadastrado") | ✅* |
-| G2 | Logado como turista, abrir Eventos | Lista aparece | ✅* |
-| G3 | **Sem login**, abrir Pontos Turísticos | Aparece um aviso para fazer login (ou o erro "Usuário não autenticado"), sem a tela quebrar | ✅* |
-| G4 | Banco sem nenhum registro | Mensagem "Nenhum ... cadastrado" em vez de tabela vazia | ✅* |
-| G5 | Entrar com senha errada | Aparece "Email ou senha inválidos" | ✅* |
-
-### 3.3 CREATE — cadastro
-
-| # | O que fazer | Resultado esperado | Status |
-|---|-------------|--------------------|--------|
-| C1 | Como **profissional**, cadastrar o ponto "Açude Velho", com descrição "Cartão-postal da cidade" | Aparece na lista sem precisar recarregar a página | ✅ |
-| C2 | Como **profissional**, cadastrar o evento "São João", com data `2026-06-24` e local "Parque do Povo" | Aparece na lista | ✅* |
-| C3 | Como **turista**, tentar cadastrar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ✅* |
-| C4 | Conferir se o registro ficou salvo no MongoDB Atlas | O registro continua na lista depois de reiniciar o backend (`rs`) e recarregar a página | ✅ |
-
-### 3.4 UPDATE — edição
-
-| # | O que fazer | Resultado esperado | Status |
-|---|-------------|--------------------|--------|
-| U1 | Como profissional, clicar em **Editar** no "Açude Velho" | O formulário abre já preenchido | ✅* |
-| U2 | Mudar o nome para "Açude Velho - Centro" e salvar | A lista mostra o nome novo | ✅* |
-| U3 | Clicar em Editar e depois em **Cancelar** | O formulário fecha e os campos ficam limpos | ✅* |
-| U4 | Como turista, tentar editar | O botão não aparece, ou aparece o erro "Usuário não possui permissão" | ✅* |
-
-### 3.5 DELETE — exclusão
-
-| # | O que fazer | Resultado esperado | Status |
-|---|-------------|--------------------|--------|
-| D1 | Como profissional, clicar em **Excluir** e depois em Cancelar na confirmação | Nada é apagado | ✅* |
-| D2 | Clicar em Excluir e confirmar | O item some da lista | ✅ |
-| D3 | Conferir se a exclusão ficou gravada no MongoDB Atlas | O registro não volta depois de reiniciar o backend (`rs`) e recarregar a página | ✅ |
-| D4 | Como turista, tentar excluir pelo Postman com o token dele | Erro 403 "Usuário não possui permissão" | ✅ |
+1. Backend: `npm run dev` na raiz. Frontend: `cd frontend` → `npm run dev` → `http://localhost:5173`.
+2. Crie uma conta **profissional** (não há cadastro público): `npm run criar-profissional -- "Nome" email@exemplo.com` (senha em `PROFISSIONAL_SENHA`).
+3. Crie um turista e uma instituição pelo `/cadastro`.
+4. Use registros com "TESTE" no nome e apague só os que você criou.
 
 ---
 
-## 4. Conferência final da integração
+## 3. Roteiro e resultados
 
-- [ ] Todas as branches do frontend entraram na `main` por Pull Request
-- [x] `npm run dev` funciona no backend e no frontend (testado na branch `feature/pedro-css-testes`)
-- [x] Todos os testes da seção 3 passaram
-- [x] Fluxo React → Apollo Client → GraphQL → backend → MongoDB Atlas conferido (C1 e C4)
+### 3.1 Turista
+
+| # | Verificação | Status |
+|---|-------------|--------|
+| T1 | Cadastro em `/cadastro` leva para `/` com nome e perfil na Navbar | ✅ |
+| T2 | Cadastro oferece só Turista e Instituição | ✅ |
+| T3 | Sessão persiste após recarregar a página (sem piscar login) | ✅ |
+| T4 | `/login` e `/cadastro` logado redirecionam para `/` | ✅ |
+| T5 | Home, busca, pontos, eventos e estabelecimentos abrem sem login e mostram dados reais | ✅ |
+| T6 | `/profissional` e `/meu-estabelecimento` mostram "Acesso não permitido" | ✅ |
+| T7 | Sem botões de cadastrar/editar/excluir nem seletor de risco | ✅ |
+| T8 | Entrar pelo Acesso profissional é recusado | ✅ |
+| T9 | Sair e entrar de novo | ✅ |
+
+### 3.2 Instituição
+
+| # | Verificação | Status |
+|---|-------------|--------|
+| I1 | Cadastro leva a `/meu-estabelecimento` com formulário de criação | ✅ |
+| I2 | "Usar minha localização" preenche latitude/longitude | ✅ |
+| I3 | Geolocalização negada: mensagem amigável, formulário continua utilizável | ✅ |
+| I4 | Salvar (endereço, cidade, latitude/longitude manuais) e ver a prévia | ✅ |
+| I5 | Sair, entrar de novo e os dados persistem; o formulário passa a ser de edição | ✅ |
+| I6 | Editar o próprio estabelecimento; latitude inválida é recusada | ✅ |
+| I7 | Aparece em `/estabelecimentos` (filtro por cidade, link "Ver no mapa") | ✅ |
+| I8 | Segundo estabelecimento da mesma conta é recusado (API, inclusive requisições simultâneas) | ✅ |
+| I9 | Editar estabelecimento de outra instituição é recusado (API) | ✅ |
+| I10 | `/profissional` mostra "Acesso não permitido"; Acesso profissional recusa a conta | ✅ |
+
+### 3.3 Profissional
+
+| # | Verificação | Status |
+|---|-------------|--------|
+| P1 | Entra pelo `/acesso-profissional` e vai a `/profissional` | ✅ |
+| P2 | Painel com abas (Resumo, Pontos, Eventos, Estabelecimentos, Níveis de risco); aba na URL sobrevive ao F5 | ✅ |
+| P3 | Criar, editar e excluir ponto turístico (de teste) | ✅ |
+| P4 | Criar, editar e excluir evento (de teste) | ✅ |
+| P5 | Editar estabelecimento de qualquer instituição | ✅ |
+| P6 | Alterar nível de risco de ponto e de evento | ✅ |
+| P7 | Páginas públicas mostram os controles de administração só para ele | ✅ |
+
+### 3.4 Segurança (API)
+
+| # | Verificação | Status |
+|---|-------------|--------|
+| S1 | Cadastro público com `perfil: "profissional"` ou `"admin"` é recusado e nada é criado | ✅ |
+| S2 | Senha guardada com bcrypt | ✅ |
+| S3 | Turista e instituição não executam mutations profissionais (pontos, eventos, risco, excluir estabelecimento) | ✅ |
+| S4 | Visitante sem token não executa mutations | ✅ |
+| S5 | `criadoPor` enviado no input é rejeitado; o dono sai do usuário autenticado | ✅ |
+| S6 | E-mail do autor não é exposto nas consultas públicas | ✅ |
+| S7 | Excluir conta não apaga pontos/eventos; profissional não se auto-exclui; token de conta excluída deixa de valer | ✅ |
+
+### 3.5 Busca, rotas e responsividade
+
+| # | Verificação | Status |
+|---|-------------|--------|
+| B1 | `/busca?q=parque`, `?q=Campina Grande`, `?q=restaurante&tipo=estabelecimentos`, `?q=festa&tipo=eventos` | ✅ |
+| B2 | Busca sem resultado mostra mensagem; busca pela barra da Home navega para `/busca?q=...` | ✅ |
+| B3 | Abrir diretamente (F5) cada rota pública e protegida funciona | ✅ |
+| B4 | URL inexistente mostra a página 404 com botão para a Home | ✅ |
+| B5 | Largura de 390 px: sem rolagem horizontal, menu hambúrguer abre e fecha | ✅ |
+| B6 | Sem erros de console nos fluxos acima | ✅ |
+
+---
+
+## 4. Build
+
+`cd frontend && npm run build` — ✅ sem erros (aviso apenas sobre o tamanho do bundle).

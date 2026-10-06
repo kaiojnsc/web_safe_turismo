@@ -1,75 +1,72 @@
 // Responsável: Lulinha (listagem + itens + ações de editar/excluir)
 //
-// Tabela com todos os eventos retornados pela query GraphQL.
+// Grade de cards com os eventos retornados pela query GraphQL.
 // - Mostra uma mensagem quando não há registros cadastrados.
 // - Ordena os eventos pela data (mais próximos primeiro).
-// - Permite filtrar a lista por nome, descrição ou local.
-// - As ações (Editar/Excluir) só aparecem para o perfil profissional.
+// - Permite filtrar a lista por texto (nome, descrição, local) e nível de risco.
+// - As ações (Editar/Excluir/alterar risco) só aparecem para o perfil profissional.
 import { useMemo, useState } from "react";
 
 import EventoItem from "./EventoItem";
+import { NIVEIS_RISCO } from "./RiscoSelect";
+import { combinaBusca, valorData } from "../utils/helpers";
 
-// Deixa o texto sem acento e em minúsculas para a busca
-// encontrar "sao joao" em "São João".
-const normalizar = (texto) =>
-  (texto || "")
-    .toString()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-
-// Converte a data do evento em número para poder ordenar.
-// Datas inválidas vão para o fim da lista.
-const valorData = (data) => {
-  if (!data) {
-    return Number.MAX_SAFE_INTEGER;
-  }
-
-  const valor = /^\d+$/.test(String(data)) ? Number(data) : data;
-  const tempo = new Date(valor).getTime();
-
-  return Number.isNaN(tempo) ? Number.MAX_SAFE_INTEGER : tempo;
-};
-
-function EventoList({ eventos, podeEditar, onEdit, onDelete }) {
+function EventoList({ eventos, podeEditar, onEdit, onDelete, onChangeRisco }) {
   const [busca, setBusca] = useState("");
+  const [risco, setRisco] = useState("");
 
   const lista = Array.isArray(eventos) ? eventos : [];
 
-  // Ordena por data + aplica o filtro da busca.
-  const filtrados = useMemo(() => {
-    const termo = normalizar(busca);
-
-    return [...lista]
-      .sort((a, b) => valorData(a.data) - valorData(b.data))
-      .filter((evento) => {
-        if (!termo) {
-          return true;
-        }
-
-        return [evento.nome, evento.descricao, evento.local]
-          .map(normalizar)
-          .some((campo) => campo.includes(termo));
-      });
-  }, [lista, busca]);
+  // Ordena por data + aplica os filtros.
+  const filtrados = useMemo(
+    () =>
+      [...lista]
+        .sort((a, b) => valorData(a.data) - valorData(b.data))
+        .filter(
+          (evento) =>
+            (!risco || (evento.nivelRisco || "baixo") === risco) &&
+            combinaBusca([evento.nome, evento.descricao, evento.local], busca)
+        ),
+    [lista, busca, risco]
+  );
 
   // Nenhum registro no banco.
   if (lista.length === 0) {
-    return <p className="empty">Nenhum evento cadastrado.</p>;
+    return (
+      <div className="empty">
+        <strong>Nenhum evento cadastrado</strong>
+        Volte em breve para conferir a agenda.
+      </div>
+    );
   }
 
   return (
     <div>
-      <div className="form-group">
-        <label htmlFor="ev-busca">Buscar evento</label>
-        <input
-          id="ev-busca"
-          type="search"
-          placeholder="Nome, descrição ou local"
-          value={busca}
-          onChange={(event) => setBusca(event.target.value)}
-        />
+      <div className="busca-barra">
+        <div className="campo-busca">
+          <input
+            id="ev-busca"
+            type="search"
+            placeholder="Buscar por nome, descrição ou local"
+            aria-label="Buscar evento"
+            value={busca}
+            onChange={(event) => setBusca(event.target.value)}
+          />
+        </div>
+
+        <select
+          className="select-filtro"
+          aria-label="Filtrar por nível de risco"
+          value={risco}
+          onChange={(event) => setRisco(event.target.value)}
+        >
+          <option value="">Todos os riscos</option>
+          {NIVEIS_RISCO.map((nivel) => (
+            <option key={nivel.valor} value={nivel.valor}>
+              Risco {nivel.rotulo.toLowerCase()}
+            </option>
+          ))}
+        </select>
       </div>
 
       <p className="lista-total">
@@ -79,32 +76,22 @@ function EventoList({ eventos, podeEditar, onEdit, onDelete }) {
       </p>
 
       {filtrados.length === 0 ? (
-        <p className="empty">Nenhum evento encontrado para "{busca}".</p>
+        <div className="empty">
+          <strong>Nenhum resultado</strong>
+          Nenhum evento encontrado para esta busca.
+        </div>
       ) : (
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Descrição</th>
-                <th>Data</th>
-                <th>Local</th>
-                {podeEditar && <th>Ações</th>}
-              </tr>
-            </thead>
-
-            <tbody>
-              {filtrados.map((evento) => (
-                <EventoItem
-                  key={evento.id}
-                  evento={evento}
-                  podeEditar={podeEditar}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div className="cards-grid">
+          {filtrados.map((evento) => (
+            <EventoItem
+              key={evento.id}
+              evento={evento}
+              podeEditar={podeEditar}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onChangeRisco={onChangeRisco}
+            />
+          ))}
         </div>
       )}
     </div>

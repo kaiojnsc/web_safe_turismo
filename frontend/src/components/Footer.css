@@ -1,0 +1,18 @@
+.rodape {
+  margin-top: 5rem;
+  background: var(--cinza-50);
+  border-top: 1px solid var(--cor-borda);
+  padding: 2rem 0;
+}
+
+.rodape-conteudo {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--cor-texto-suave);
+}
+
+.rodape-conteudo strong {
+  color: var(--verde-900);
+}

@@ -5,7 +5,7 @@ const cadastrarEstabelecimento = async (req, res) => {
   try {
     const estabelecimento = await estabelecimentoService.criar(
       req.body,
-      req.usuario.id
+      req.usuario
     );
 
     res.status(201).json({
@@ -58,7 +58,8 @@ const atualizarEstabelecimento = async (req, res) => {
   try {
     const estabelecimento = await estabelecimentoService.atualizar(
       req.params.id,
-      req.body
+      req.body,
+      req.usuario
     );
 
     res.status(200).json({

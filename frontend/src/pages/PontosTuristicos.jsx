@@ -6,6 +6,7 @@ import {
   CREATE_PONTO_TURISTICO,
   UPDATE_PONTO_TURISTICO,
   DELETE_PONTO_TURISTICO,
+  SET_RISCO_PONTO_TURISTICO,
 } from "../graphql/mutations";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,34 +14,46 @@ import PontoTuristicoList from "../components/PontoTuristicoList";
 import PontoTuristicoForm from "../components/PontoTuristicoForm";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
-import LoginNecessario from "../components/LoginNecessario";
+import SuccessMessage from "../components/SuccessMessage";
 
-function PontosTuristicos() {
-  const { usuario } = useAuth();
-
-  // O backend só responde para usuários logados
-  if (!usuario) {
-    return <LoginNecessario titulo="Pontos Turísticos" />;
-  }
-
-  return <PontosTuristicosCrud />;
-}
-
-function PontosTuristicosCrud() {
+// Página pública: qualquer visitante consulta os pontos turísticos.
+// Só o perfil profissional vê os controles de cadastro, edição, exclusão e risco
+// (e o backend confere a permissão de novo em cada mutation).
+// "embutido" é usado dentro do Painel profissional (sem o cabeçalho da página).
+function PontosTuristicos({ embutido = false }) {
   const { ehProfissional } = useAuth();
 
   const [selecionado, setSelecionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [erroAcao, setErroAcao] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   const { loading, error, data, refetch } = useQuery(GET_PONTOS_TURISTICOS);
 
   const [createPontoTuristico] = useMutation(CREATE_PONTO_TURISTICO);
   const [updatePontoTuristico] = useMutation(UPDATE_PONTO_TURISTICO);
   const [deletePontoTuristico] = useMutation(DELETE_PONTO_TURISTICO);
+  const [setRisco] = useMutation(SET_RISCO_PONTO_TURISTICO);
+
+  const limparAvisos = () => {
+    setErroAcao("");
+    setSucesso("");
+  };
+
+  const handleChangeRisco = async (id, nivelRisco) => {
+    limparAvisos();
+
+    try {
+      await setRisco({ variables: { id, nivelRisco } });
+      await refetch();
+      setSucesso("Nível de risco atualizado.");
+    } catch (error) {
+      setErroAcao(`Não foi possível alterar o risco: ${error.message}`);
+    }
+  };
 
   const handleSave = async (pontoTuristico) => {
-    setErroAcao("");
+    limparAvisos();
 
     const { id, ...input } = pontoTuristico;
 
@@ -54,14 +67,14 @@ function PontosTuristicosCrud() {
       await refetch();
       setSelecionado(null);
       setMostrarFormulario(false);
+      setSucesso(id ? "Ponto turístico atualizado." : "Ponto turístico cadastrado.");
     } catch (error) {
-      console.error("Erro ao salvar ponto turístico:", error);
       setErroAcao(`Não foi possível salvar: ${error.message}`);
     }
   };
 
   const handleEdit = (pontoTuristico) => {
-    setErroAcao("");
+    limparAvisos();
     setSelecionado(pontoTuristico);
     setMostrarFormulario(true);
   };
@@ -73,19 +86,19 @@ function PontosTuristicosCrud() {
       return;
     }
 
-    setErroAcao("");
+    limparAvisos();
 
     try {
       await deletePontoTuristico({ variables: { id } });
       await refetch();
+      setSucesso("Ponto turístico excluído.");
     } catch (error) {
-      console.error("Erro ao excluir ponto turístico:", error);
       setErroAcao(`Não foi possível excluir: ${error.message}`);
     }
   };
 
   const handleNew = () => {
-    setErroAcao("");
+    limparAvisos();
     setSelecionado(null);
     setMostrarFormulario(true);
   };
@@ -95,33 +108,27 @@ function PontosTuristicosCrud() {
     setMostrarFormulario(false);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  const Titulo = embutido ? "h2" : "h1";
 
-  if (error) {
-    return (
-      <div className="page">
-        <ErrorMessage message={error.message} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="page">
+  const conteudo = (
+    <>
       <div className="page-header">
-        <h1>Pontos Turísticos</h1>
+        <div>
+          {!embutido && <span className="eyebrow">Descubra lugares</span>}
+          <Titulo>Pontos turísticos</Titulo>
+        </div>
 
         {ehProfissional && (
-          <button className="button save" onClick={handleNew}>
-            + Novo Ponto Turístico
+          <button type="button" className="button save" onClick={handleNew}>
+            + Novo ponto turístico
           </button>
         )}
       </div>
 
+      <SuccessMessage message={sucesso} />
       <ErrorMessage message={erroAcao} />
 
-      {mostrarFormulario && (
+      {mostrarFormulario && ehProfissional && (
         <PontoTuristicoForm
           pontoTuristico={selecionado}
           onSave={handleSave}
@@ -129,14 +136,22 @@ function PontosTuristicosCrud() {
         />
       )}
 
-      <PontoTuristicoList
-        pontosTuristicos={data?.pontosTuristicos || []}
-        podeEditar={ehProfissional}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-    </div>
+      {loading && !data && <Loading />}
+      <ErrorMessage message={error && !data ? error.message : ""} />
+
+      {data && (
+        <PontoTuristicoList
+          pontosTuristicos={data.pontosTuristicos || []}
+          podeEditar={ehProfissional}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onChangeRisco={handleChangeRisco}
+        />
+      )}
+    </>
   );
+
+  return embutido ? <section>{conteudo}</section> : <main className="page">{conteudo}</main>;
 }
 
 export default PontosTuristicos;

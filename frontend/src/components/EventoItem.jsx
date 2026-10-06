@@ -1,30 +1,15 @@
 // Responsável: Lulinha (listagem + itens + ações de editar/excluir)
 //
-// Uma linha da tabela de eventos.
+// Um card de evento (mesmo visual usado na Home e na Busca).
 // Exibe os campos retornados pela query GET_EVENTOS
-// (nome, descricao, data, local) e, para o perfil profissional,
-// os botões de Editar e Excluir.
+// (nome, descricao, data, local, nivelRisco) e, para o perfil profissional,
+// o seletor de risco e os botões de Editar e Excluir.
 
-// Mostra a data no formato brasileiro (24/06/2026).
-// timeZone "UTC" evita a data aparecer um dia antes por causa do fuso.
-// O backend pode devolver a data como texto ISO ou como número em texto
-// (milissegundos), então os dois casos são tratados.
-const formatarData = (data) => {
-  if (!data) {
-    return "-";
-  }
+import CardLugar from "./CardLugar";
+import RiscoSelect from "./RiscoSelect";
+import { IMG_EVENTO, formatarData } from "../utils/helpers";
 
-  const valor = /^\d+$/.test(String(data)) ? Number(data) : data;
-  const convertida = new Date(valor);
-
-  if (Number.isNaN(convertida.getTime())) {
-    return "-";
-  }
-
-  return convertida.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-};
-
-function EventoItem({ evento, podeEditar, onEdit, onDelete }) {
+function EventoItem({ evento, podeEditar, onEdit, onDelete, onChangeRisco }) {
   // Encaminha o registro inteiro para o formulário de edição.
   const handleEditar = () => {
     if (onEdit) {
@@ -40,17 +25,27 @@ function EventoItem({ evento, podeEditar, onEdit, onDelete }) {
   };
 
   return (
-    <tr>
-      <td data-label="Nome">{evento.nome}</td>
-      <td data-label="Descrição">{evento.descricao}</td>
-      <td data-label="Data">{formatarData(evento.data)}</td>
-      <td data-label="Local">{evento.local || "-"}</td>
-
+    <CardLugar
+      imagem={IMG_EVENTO}
+      selo={formatarData(evento.data)}
+      risco={
+        <RiscoSelect
+          id={evento.id}
+          nome={evento.nome}
+          valor={evento.nivelRisco}
+          podeEditar={podeEditar}
+          onChange={onChangeRisco}
+        />
+      }
+      titulo={evento.nome}
+      local={evento.local}
+      descricao={evento.descricao}
+    >
       {podeEditar && (
-        <td data-label="Ações">
+        <>
           <button
             type="button"
-            className="button edit"
+            className="button edit pequeno"
             onClick={handleEditar}
             aria-label={`Editar evento ${evento.nome}`}
           >
@@ -58,15 +53,15 @@ function EventoItem({ evento, podeEditar, onEdit, onDelete }) {
           </button>
           <button
             type="button"
-            className="button delete"
+            className="button delete pequeno"
             onClick={handleExcluir}
             aria-label={`Excluir evento ${evento.nome}`}
           >
             Excluir
           </button>
-        </td>
+        </>
       )}
-    </tr>
+    </CardLugar>
   );
 }
 

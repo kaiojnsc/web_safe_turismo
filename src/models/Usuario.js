@@ -7,7 +7,7 @@ const usuarioSchema = new mongoose.Schema(
     senha: { type: String, required: true, select: false },
     perfil: {
       type: String,
-      enum: ['turista', 'profissional'],
+      enum: ['turista', 'instituicao', 'profissional'],
       default: 'turista',
       index: true
     }

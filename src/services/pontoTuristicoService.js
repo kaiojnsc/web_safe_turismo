@@ -1,6 +1,26 @@
 const PontoTuristico = require('../models/PontoTuristico');
 const AppError = require('../utils/AppError');
 
+const NIVEIS_RISCO = ['baixo', 'medio', 'alto'];
+
+const definirNivelRisco = async (id, nivelRisco) => {
+  if (!NIVEIS_RISCO.includes(nivelRisco)) {
+    throw new AppError('Nível de risco deve ser baixo, medio ou alto', 400, 'BAD_REQUEST');
+  }
+
+  const pontoTuristico = await PontoTuristico.findByIdAndUpdate(
+    id,
+    { nivelRisco },
+    { new: true, runValidators: true }
+  ).populate('criadoPor', '-senha');
+
+  if (!pontoTuristico) {
+    throw new AppError('Ponto turístico não encontrado', 404, 'NOT_FOUND');
+  }
+
+  return pontoTuristico;
+};
+
 const criar = async (dados, usuarioId) => {
   const { nome, descricao, categoria, endereco, latitude, longitude } = dados;
 
@@ -63,5 +83,6 @@ module.exports = {
   listar,
   buscarPorId,
   atualizar,
-  excluir
+  excluir,
+  definirNivelRisco
 };

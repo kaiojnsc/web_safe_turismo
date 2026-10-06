@@ -6,6 +6,7 @@ const eventoSchema = new mongoose.Schema(
     descricao: { type: String, required: true, trim: true },
     data: { type: Date, required: true, index: true },
     local: { type: String, required: true, trim: true },
+    nivelRisco: { type: String, enum: ['baixo', 'medio', 'alto'], default: 'baixo' },
     criadoPor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario',

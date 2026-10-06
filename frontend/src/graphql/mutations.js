@@ -88,3 +88,82 @@ export const DELETE_EVENTO = gql`
     }
   }
 `;
+
+// ---------- Nível de risco (somente administrador/profissional) ----------
+
+export const SET_RISCO_PONTO_TURISTICO = gql`
+  mutation DefinirNivelRiscoPontoTuristico($id: ID!, $nivelRisco: String!) {
+    definirNivelRiscoPontoTuristico(id: $id, nivelRisco: $nivelRisco) {
+      id
+      nivelRisco
+    }
+  }
+`;
+
+export const SET_RISCO_EVENTO = gql`
+  mutation DefinirNivelRiscoEvento($id: ID!, $nivelRisco: String!) {
+    definirNivelRiscoEvento(id: $id, nivelRisco: $nivelRisco) {
+      id
+      nivelRisco
+    }
+  }
+`;
+
+// ---------- Contas ----------
+
+export const LOGIN_PROFISSIONAL = gql`
+  mutation LoginProfissional($input: LoginInput!) {
+    loginProfissional(input: $input) {
+      mensagem
+      token
+      usuario {
+        id
+        nome
+        email
+        perfil
+      }
+    }
+  }
+`;
+
+export const CADASTRAR = gql`
+  mutation Cadastrar($input: CadastroInput!) {
+    cadastrar(input: $input) {
+      mensagem
+      usuario {
+        id
+        nome
+        email
+        perfil
+      }
+    }
+  }
+`;
+
+// ---------- Estabelecimentos ----------
+
+export const CREATE_ESTABELECIMENTO = gql`
+  mutation CadastrarEstabelecimento($input: EstabelecimentoInput!) {
+    cadastrarEstabelecimento(input: $input) {
+      id
+      nome
+    }
+  }
+`;
+
+export const UPDATE_ESTABELECIMENTO = gql`
+  mutation AtualizarEstabelecimento($id: ID!, $input: AtualizarEstabelecimentoInput!) {
+    atualizarEstabelecimento(id: $id, input: $input) {
+      id
+      nome
+    }
+  }
+`;
+
+export const DELETE_ESTABELECIMENTO = gql`
+  mutation ExcluirEstabelecimento($id: ID!) {
+    excluirEstabelecimento(id: $id) {
+      mensagem
+    }
+  }
+`;

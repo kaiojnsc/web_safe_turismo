@@ -1,113 +1,111 @@
-import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './Navbar.css';
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+
+import { ROTULOS_PERFIL, useAuth } from "../context/AuthContext";
+import Icon from "./Icon";
+import "./Navbar.css";
 
 function Navbar() {
-  const { usuario, sair } = useAuth();
+  const { usuario, ehInstituicao, ehProfissional, sair } = useAuth();
   const navigate = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
 
+  const fecharMenu = () => setMenuAberto(false);
+
   const handleSair = async () => {
     await sair();
-    setMenuAberto(false);
-    navigate('/');
+    fecharMenu();
+    navigate("/");
   };
 
-  const fecharMenu = () => {
-    setMenuAberto(false);
-  };
-
-  const linkClass = ({ isActive }) =>
-    `navbar-link ${isActive ? 'active' : ''}`;
+  const linkClass = ({ isActive }) => `navbar-link ${isActive ? "active" : ""}`;
 
   return (
-    <nav className="navbar">
+    <header className="navbar">
       <div className="navbar-container">
-        <div className="navbar-brand">
-          <Link to="/" className="navbar-logo" onClick={fecharMenu}>
-            SafeTour
-          </Link>
-        </div>
+        <Link to="/" className="navbar-logo" onClick={fecharMenu} aria-label="SafeTour - início">
+          <span className="navbar-logo-icone">
+            <Icon nome="escudo" tamanho={20} />
+          </span>
+          SafeTour
+        </Link>
 
         <button
           type="button"
-          className={`navbar-toggle ${menuAberto ? 'active' : ''}`}
+          className="navbar-toggle"
           onClick={() => setMenuAberto(!menuAberto)}
-          aria-label="Abrir menu"
+          aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
           aria-expanded={menuAberto}
         >
-          <span></span>
-          <span></span>
-          <span></span>
+          <Icon nome={menuAberto ? "fechar" : "menu"} tamanho={24} />
         </button>
 
-        <div className={`navbar-menu ${menuAberto ? 'active' : ''}`}>
+        <nav className={`navbar-menu ${menuAberto ? "active" : ""}`} aria-label="Principal">
           <ul className="navbar-links">
             <li>
-              <NavLink
-                to="/"
-                end
-                className={linkClass}
-                onClick={fecharMenu}
-              >
+              <NavLink to="/" end className={linkClass} onClick={fecharMenu}>
                 Início
               </NavLink>
             </li>
-
             <li>
-              <NavLink
-                to="/pontos-turisticos"
-                className={linkClass}
-                onClick={fecharMenu}
-              >
-                Pontos Turísticos
+              <NavLink to="/pontos-turisticos" className={linkClass} onClick={fecharMenu}>
+                Pontos turísticos
               </NavLink>
             </li>
-
             <li>
-              <NavLink
-                to="/eventos"
-                className={linkClass}
-                onClick={fecharMenu}
-              >
+              <NavLink to="/eventos" className={linkClass} onClick={fecharMenu}>
                 Eventos
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/estabelecimentos" className={linkClass} onClick={fecharMenu}>
+                Estabelecimentos
+              </NavLink>
+            </li>
+
+            {ehInstituicao && (
+              <li>
+                <NavLink to="/meu-estabelecimento" className={linkClass} onClick={fecharMenu}>
+                  Meu estabelecimento
+                </NavLink>
+              </li>
+            )}
+
+            {ehProfissional && (
+              <li>
+                <NavLink to="/profissional" className={linkClass} onClick={fecharMenu}>
+                  Painel profissional
+                </NavLink>
+              </li>
+            )}
           </ul>
 
           {usuario ? (
             <div className="navbar-usuario">
               <div className="navbar-user-info">
-                <span className="navbar-user-name">
-                  {usuario.nome}
-                </span>
-
-                <span className="navbar-user-role">
-                  {usuario.perfil}
+                <span className="navbar-user-name">{usuario.nome}</span>
+                <span className={`navbar-user-role perfil-${usuario.perfil}`}>
+                  {ROTULOS_PERFIL[usuario.perfil] || usuario.perfil}
                 </span>
               </div>
 
-              <button
-                type="button"
-                className="navbar-sair"
-                onClick={handleSair}
-              >
+              <button type="button" className="button ghost pequeno" onClick={handleSair}>
                 Sair
               </button>
             </div>
           ) : (
-            <NavLink
-              to="/login"
-              className="navbar-login"
-              onClick={fecharMenu}
-            >
-              Entrar
-            </NavLink>
+            <div className="navbar-auth">
+              <Link to="/cadastro" className="navbar-criar" onClick={fecharMenu}>
+                Criar conta
+              </Link>
+              <Link to="/login" className="button" onClick={fecharMenu}>
+                Entrar
+              </Link>
+            </div>
           )}
-        </div>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
 

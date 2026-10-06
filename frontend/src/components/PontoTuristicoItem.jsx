@@ -1,14 +1,15 @@
 // Responsável: Lulinha (listagem + itens + ações de editar/excluir)
 //
-// Uma linha da tabela de pontos turísticos.
+// Um card de ponto turístico (mesmo visual usado na Home e na Busca).
 // Exibe os campos retornados pela query GET_PONTOS_TURISTICOS
-// (nome, descricao, categoria, endereco) e, para o perfil profissional,
-// os botões de Editar e Excluir.
+// (nome, descricao, categoria, endereco, nivelRisco) e, para o perfil
+// profissional, o seletor de risco e os botões de Editar e Excluir.
 
-// Campos opcionais vazios aparecem como "-" em vez de célula em branco.
-const exibir = (valor) => (valor && String(valor).trim() ? valor : "-");
+import CardLugar from "./CardLugar";
+import RiscoSelect from "./RiscoSelect";
+import { IMG_PONTO } from "../utils/helpers";
 
-function PontoTuristicoItem({ pontoTuristico, podeEditar, onEdit, onDelete }) {
+function PontoTuristicoItem({ pontoTuristico, podeEditar, onEdit, onDelete, onChangeRisco }) {
   // Encaminha o registro inteiro para o formulário de edição.
   const handleEditar = () => {
     if (onEdit) {
@@ -24,17 +25,27 @@ function PontoTuristicoItem({ pontoTuristico, podeEditar, onEdit, onDelete }) {
   };
 
   return (
-    <tr>
-      <td data-label="Nome">{pontoTuristico.nome}</td>
-      <td data-label="Descrição">{pontoTuristico.descricao}</td>
-      <td data-label="Categoria">{exibir(pontoTuristico.categoria)}</td>
-      <td data-label="Endereço">{exibir(pontoTuristico.endereco)}</td>
-
+    <CardLugar
+      imagem={IMG_PONTO}
+      selo={pontoTuristico.categoria || "Ponto turístico"}
+      risco={
+        <RiscoSelect
+          id={pontoTuristico.id}
+          nome={pontoTuristico.nome}
+          valor={pontoTuristico.nivelRisco}
+          podeEditar={podeEditar}
+          onChange={onChangeRisco}
+        />
+      }
+      titulo={pontoTuristico.nome}
+      local={pontoTuristico.endereco}
+      descricao={pontoTuristico.descricao}
+    >
       {podeEditar && (
-        <td data-label="Ações">
+        <>
           <button
             type="button"
-            className="button edit"
+            className="button edit pequeno"
             onClick={handleEditar}
             aria-label={`Editar ponto turístico ${pontoTuristico.nome}`}
           >
@@ -42,15 +53,15 @@ function PontoTuristicoItem({ pontoTuristico, podeEditar, onEdit, onDelete }) {
           </button>
           <button
             type="button"
-            className="button delete"
+            className="button delete pequeno"
             onClick={handleExcluir}
             aria-label={`Excluir ponto turístico ${pontoTuristico.nome}`}
           >
             Excluir
           </button>
-        </td>
+        </>
       )}
-    </tr>
+    </CardLugar>
   );
 }
 

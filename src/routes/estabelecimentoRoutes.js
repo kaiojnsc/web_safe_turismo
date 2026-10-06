@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 
 const {
   cadastrarEstabelecimento,
@@ -18,7 +18,7 @@ const router = express.Router();
 router.post(
   '/estabelecimentos',
   autenticar,
-  autorizar('profissional'),
+  autorizar('profissional', 'instituicao'),
   cadastrarEstabelecimento
 );
 
@@ -37,7 +37,7 @@ router.get(
 router.put(
   '/estabelecimentos/:id',
   autenticar,
-  autorizar('profissional'),
+  autorizar('profissional', 'instituicao'),
   atualizarEstabelecimento
 );
 

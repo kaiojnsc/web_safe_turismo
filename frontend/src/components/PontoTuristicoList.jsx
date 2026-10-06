@@ -1,61 +1,72 @@
 // Responsável: Lulinha (listagem + itens + ações de editar/excluir)
 //
-// Tabela com todos os pontos turísticos retornados pela query GraphQL.
+// Grade de cards com os pontos turísticos retornados pela query GraphQL.
 // - Mostra uma mensagem quando não há registros cadastrados.
-// - Permite filtrar a lista por nome, descrição, categoria ou endereço.
-// - As ações (Editar/Excluir) só aparecem para o perfil profissional.
+// - Permite filtrar a lista por texto (nome, descrição, categoria, endereço)
+//   e por nível de risco.
+// - As ações (Editar/Excluir/alterar risco) só aparecem para o perfil profissional.
 import { useMemo, useState } from "react";
 
 import PontoTuristicoItem from "./PontoTuristicoItem";
+import { NIVEIS_RISCO } from "./RiscoSelect";
+import { combinaBusca } from "../utils/helpers";
 
-// Deixa o texto sem acento e em minúsculas para a busca
-// encontrar "acude" em "Açude Velho".
-const normalizar = (texto) =>
-  (texto || "")
-    .toString()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-
-function PontoTuristicoList({ pontosTuristicos, podeEditar, onEdit, onDelete }) {
+function PontoTuristicoList({ pontosTuristicos, podeEditar, onEdit, onDelete, onChangeRisco }) {
   const [busca, setBusca] = useState("");
+  const [risco, setRisco] = useState("");
 
   const lista = Array.isArray(pontosTuristicos) ? pontosTuristicos : [];
 
-  // Ordem alfabética pelo nome + filtro da busca.
-  const filtrados = useMemo(() => {
-    const termo = normalizar(busca);
-
-    return [...lista]
-      .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"))
-      .filter((ponto) => {
-        if (!termo) {
-          return true;
-        }
-
-        return [ponto.nome, ponto.descricao, ponto.categoria, ponto.endereco]
-          .map(normalizar)
-          .some((campo) => campo.includes(termo));
-      });
-  }, [lista, busca]);
+  // Ordem alfabética pelo nome + filtros.
+  const filtrados = useMemo(
+    () =>
+      [...lista]
+        .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"))
+        .filter(
+          (ponto) =>
+            (!risco || (ponto.nivelRisco || "baixo") === risco) &&
+            combinaBusca([ponto.nome, ponto.descricao, ponto.categoria, ponto.endereco], busca)
+        ),
+    [lista, busca, risco]
+  );
 
   // Nenhum registro no banco.
   if (lista.length === 0) {
-    return <p className="empty">Nenhum ponto turístico cadastrado.</p>;
+    return (
+      <div className="empty">
+        <strong>Nenhum ponto turístico cadastrado</strong>
+        Assim que forem cadastrados eles aparecem aqui.
+      </div>
+    );
   }
 
   return (
     <div>
-      <div className="form-group">
-        <label htmlFor="pt-busca">Buscar ponto turístico</label>
-        <input
-          id="pt-busca"
-          type="search"
-          placeholder="Nome, descrição, categoria ou endereço"
-          value={busca}
-          onChange={(event) => setBusca(event.target.value)}
-        />
+      <div className="busca-barra">
+        <div className="campo-busca">
+          <input
+            id="pt-busca"
+            type="search"
+            placeholder="Buscar por nome, categoria ou endereço"
+            aria-label="Buscar ponto turístico"
+            value={busca}
+            onChange={(event) => setBusca(event.target.value)}
+          />
+        </div>
+
+        <select
+          className="select-filtro"
+          aria-label="Filtrar por nível de risco"
+          value={risco}
+          onChange={(event) => setRisco(event.target.value)}
+        >
+          <option value="">Todos os riscos</option>
+          {NIVEIS_RISCO.map((nivel) => (
+            <option key={nivel.valor} value={nivel.valor}>
+              Risco {nivel.rotulo.toLowerCase()}
+            </option>
+          ))}
+        </select>
       </div>
 
       <p className="lista-total">
@@ -65,34 +76,22 @@ function PontoTuristicoList({ pontosTuristicos, podeEditar, onEdit, onDelete }) 
       </p>
 
       {filtrados.length === 0 ? (
-        <p className="empty">
-          Nenhum ponto turístico encontrado para "{busca}".
-        </p>
+        <div className="empty">
+          <strong>Nenhum resultado</strong>
+          Nenhum ponto turístico encontrado para esta busca.
+        </div>
       ) : (
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Descrição</th>
-                <th>Categoria</th>
-                <th>Endereço</th>
-                {podeEditar && <th>Ações</th>}
-              </tr>
-            </thead>
-
-            <tbody>
-              {filtrados.map((pontoTuristico) => (
-                <PontoTuristicoItem
-                  key={pontoTuristico.id}
-                  pontoTuristico={pontoTuristico}
-                  podeEditar={podeEditar}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div className="cards-grid">
+          {filtrados.map((pontoTuristico) => (
+            <PontoTuristicoItem
+              key={pontoTuristico.id}
+              pontoTuristico={pontoTuristico}
+              podeEditar={podeEditar}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onChangeRisco={onChangeRisco}
+            />
+          ))}
         </div>
       )}
     </div>

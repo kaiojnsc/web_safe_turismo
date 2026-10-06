@@ -6,6 +6,7 @@ import {
   CREATE_EVENTO,
   UPDATE_EVENTO,
   DELETE_EVENTO,
+  SET_RISCO_EVENTO,
 } from "../graphql/mutations";
 import { useAuth } from "../context/AuthContext";
 
@@ -13,34 +14,46 @@ import EventoList from "../components/EventoList";
 import EventoForm from "../components/EventoForm";
 import Loading from "../components/Loading";
 import ErrorMessage from "../components/ErrorMessage";
-import LoginNecessario from "../components/LoginNecessario";
+import SuccessMessage from "../components/SuccessMessage";
 
-function Eventos() {
-  const { usuario } = useAuth();
-
-  // O backend só responde para usuários logados
-  if (!usuario) {
-    return <LoginNecessario titulo="Eventos" />;
-  }
-
-  return <EventosCrud />;
-}
-
-function EventosCrud() {
+// Página pública: qualquer visitante consulta os eventos.
+// Só o perfil profissional vê os controles de cadastro, edição, exclusão e risco
+// (e o backend confere a permissão de novo em cada mutation).
+// "embutido" é usado dentro do Painel profissional (sem o cabeçalho da página).
+function Eventos({ embutido = false }) {
   const { ehProfissional } = useAuth();
 
   const [selecionado, setSelecionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [erroAcao, setErroAcao] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   const { loading, error, data, refetch } = useQuery(GET_EVENTOS);
 
   const [createEvento] = useMutation(CREATE_EVENTO);
   const [updateEvento] = useMutation(UPDATE_EVENTO);
   const [deleteEvento] = useMutation(DELETE_EVENTO);
+  const [setRisco] = useMutation(SET_RISCO_EVENTO);
+
+  const limparAvisos = () => {
+    setErroAcao("");
+    setSucesso("");
+  };
+
+  const handleChangeRisco = async (id, nivelRisco) => {
+    limparAvisos();
+
+    try {
+      await setRisco({ variables: { id, nivelRisco } });
+      await refetch();
+      setSucesso("Nível de risco atualizado.");
+    } catch (error) {
+      setErroAcao(`Não foi possível alterar o risco: ${error.message}`);
+    }
+  };
 
   const handleSave = async (evento) => {
-    setErroAcao("");
+    limparAvisos();
 
     const { id, ...input } = evento;
 
@@ -54,14 +67,14 @@ function EventosCrud() {
       await refetch();
       setSelecionado(null);
       setMostrarFormulario(false);
+      setSucesso(id ? "Evento atualizado." : "Evento cadastrado.");
     } catch (error) {
-      console.error("Erro ao salvar evento:", error);
       setErroAcao(`Não foi possível salvar: ${error.message}`);
     }
   };
 
   const handleEdit = (evento) => {
-    setErroAcao("");
+    limparAvisos();
     setSelecionado(evento);
     setMostrarFormulario(true);
   };
@@ -73,19 +86,19 @@ function EventosCrud() {
       return;
     }
 
-    setErroAcao("");
+    limparAvisos();
 
     try {
       await deleteEvento({ variables: { id } });
       await refetch();
+      setSucesso("Evento excluído.");
     } catch (error) {
-      console.error("Erro ao excluir evento:", error);
       setErroAcao(`Não foi possível excluir: ${error.message}`);
     }
   };
 
   const handleNew = () => {
-    setErroAcao("");
+    limparAvisos();
     setSelecionado(null);
     setMostrarFormulario(true);
   };
@@ -95,48 +108,46 @@ function EventosCrud() {
     setMostrarFormulario(false);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  const Titulo = embutido ? "h2" : "h1";
 
-  if (error) {
-    return (
-      <div className="page">
-        <ErrorMessage message={error.message} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="page">
+  const conteudo = (
+    <>
       <div className="page-header">
-        <h1>Eventos</h1>
+        <div>
+          {!embutido && <span className="eyebrow">Agenda</span>}
+          <Titulo>Eventos</Titulo>
+        </div>
 
         {ehProfissional && (
-          <button className="button save" onClick={handleNew}>
-            + Novo Evento
+          <button type="button" className="button save" onClick={handleNew}>
+            + Novo evento
           </button>
         )}
       </div>
 
+      <SuccessMessage message={sucesso} />
       <ErrorMessage message={erroAcao} />
 
-      {mostrarFormulario && (
-        <EventoForm
-          evento={selecionado}
-          onSave={handleSave}
-          onCancel={handleCancel}
-        />
+      {mostrarFormulario && ehProfissional && (
+        <EventoForm evento={selecionado} onSave={handleSave} onCancel={handleCancel} />
       )}
 
-      <EventoList
-        eventos={data?.eventos || []}
-        podeEditar={ehProfissional}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-    </div>
+      {loading && !data && <Loading />}
+      <ErrorMessage message={error && !data ? error.message : ""} />
+
+      {data && (
+        <EventoList
+          eventos={data.eventos || []}
+          podeEditar={ehProfissional}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onChangeRisco={handleChangeRisco}
+        />
+      )}
+    </>
   );
+
+  return embutido ? <section>{conteudo}</section> : <main className="page">{conteudo}</main>;
 }
 
 export default Eventos;
